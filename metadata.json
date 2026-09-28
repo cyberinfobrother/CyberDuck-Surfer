@@ -1,0 +1,8 @@
+{
+  "name": "Remix Duck Race Name Picker",
+  "description": "Duck Surfer: Interactive duck surfing race and random winner picker with water wave physics, horse race speed pacing, custom participant lists, and podium leaderboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
