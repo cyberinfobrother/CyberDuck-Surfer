@@ -1,8 +1,0 @@
-{
-  "name": "CyberDuck Surfer",
-  "description": "CyberDuck Surfer: Interactive cyber duck surfing race and random winner picker with water wave physics, horse race speed pacing, custom participant lists, collapsible control panel, mobile-friendly design, and podium leaderboard.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}
