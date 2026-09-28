@@ -3,22 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Duck Surfer - Name Picker & Water Race</title>
-  <meta name="description" content="Duck Surfer: Interactive duck surfing race and random winner picker with water wave physics, horse race speed pacing, custom participant lists, and podium leaderboard." />
-  <meta property="og:title" content="Duck Surfer - Name Picker & Water Race" />
-  <meta property="og:description" content="Duck Surfer: Interactive duck surfing race and random winner picker with water wave physics, horse race speed pacing, custom participant lists, and podium leaderboard." />
+  <title>CyberDuck Surfer - Name Picker & Water Race</title>
+  <meta name="description" content="CyberDuck Surfer: Interactive cyber duck surfing race and random winner picker with water wave physics, horse race speed pacing, custom participant lists, collapsible control panel, and podium leaderboard." />
+  <meta property="og:title" content="CyberDuck Surfer - Name Picker & Water Race" />
+  <meta property="og:description" content="CyberDuck Surfer: Interactive cyber duck surfing race and random winner picker with water wave physics, horse race speed pacing, custom participant lists, collapsible control panel, and podium leaderboard." />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <style>
     :root {
-      --primary: #0284c7;
-      --primary-dark: #0369a1;
-      --primary-light: #e0f2fe;
+      --primary: #06b6d4;
+      --primary-dark: #0891b2;
+      --primary-light: #cffafe;
+      --cyber-neon: #00f0ff;
+      --cyber-purple: #a855f7;
+      --cyber-pink: #ec4899;
       --accent: #f59e0b;
       --accent-yellow: #facc15;
       --accent-green: #10b981;
       --accent-red: #ef4444;
-      --bg-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 40%, #0f172a 100%);
+      --bg-gradient: linear-gradient(135deg, #090d16 0%, #0f172a 45%, #082f49 100%);
       --surface: #ffffff;
       --surface-subtle: #f8fafc;
       --border: #e2e8f0;
@@ -26,7 +29,7 @@
       --text-muted: #64748b;
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.15);
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 18px;
@@ -128,21 +131,33 @@
       transform: translateY(1px);
     }
 
-    /* Main Container Grid */
+    /* Main Container Grid with Collapsible Sidebar */
     main {
       flex: 1;
       display: grid;
-      grid-template-columns: 340px 1fr;
+      grid-template-columns: 350px 1fr;
       gap: 16px;
       padding: 16px;
-      max-width: 1700px;
+      max-width: 1750px;
       width: 100%;
       margin: 0 auto;
+      transition: grid-template-columns 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    @media (max-width: 980px) {
+    main.sidebar-collapsed {
+      grid-template-columns: 0fr 1fr;
+      gap: 0px;
+    }
+
+    @media (max-width: 900px) {
       main {
         grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 12px;
+      }
+      main.sidebar-collapsed {
+        grid-template-columns: 1fr;
+        gap: 12px;
       }
     }
 
@@ -151,37 +166,80 @@
       background: var(--surface);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-xl);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       max-height: calc(100vh - 100px);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
     }
 
-    @media (max-width: 980px) {
+    main.sidebar-collapsed .sidebar {
+      opacity: 0;
+      transform: translateX(-20px);
+      pointer-events: none;
+      visibility: hidden;
+      margin: 0;
+      padding: 0;
+      border: none;
+      max-width: 0;
+    }
+
+    @media (max-width: 900px) {
       .sidebar {
         max-height: none;
+      }
+      main.sidebar-collapsed .sidebar {
+        display: none;
       }
     }
 
     .sidebar-header {
-      padding: 16px 20px;
+      padding: 14px 18px;
       background: #f1f5f9;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
+    }
+
+    .sidebar-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .sidebar-header h2 {
       font-size: 0.95rem;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #334155;
+      color: #1e293b;
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .btn-collapse-toggle {
+      background: transparent;
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-sm);
+      color: #64748b;
+      padding: 4px 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-collapse-toggle:hover {
+      background: #e2e8f0;
+      color: #0f172a;
     }
 
     .badge-count {
@@ -573,15 +631,74 @@
     /* Canvas Stage Card */
     .canvas-container {
       position: relative;
-      background: #0284c7;
+      background: #032a48;
       border-radius: var(--radius-lg);
       overflow: hidden;
-      box-shadow: var(--shadow-xl);
-      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: var(--shadow-xl), 0 0 25px rgba(6, 182, 212, 0.2);
+      border: 2px solid rgba(0, 240, 255, 0.35);
       aspect-ratio: 16 / 9;
-      min-height: 480px;
+      min-height: 440px;
       width: 100%;
       display: flex;
+    }
+
+    /* Floating Panel Open Button (shown when sidebar is collapsed) */
+    .floating-panel-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      color: #38bdf8;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .floating-panel-btn:hover {
+      background: rgba(8, 47, 73, 0.95);
+      border-color: #00f0ff;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    main.sidebar-collapsed .floating-panel-btn {
+      display: inline-flex;
+    }
+
+    /* Quick Start Button in HUD for Collapsed or Mobile State */
+    .hud-quick-start {
+      display: none;
+      background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+      color: #713f12;
+      border: none;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(234, 179, 8, 0.4);
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .hud-quick-start:hover {
+      transform: scale(1.03);
+    }
+
+    main.sidebar-collapsed .hud-quick-start {
+      display: inline-flex;
+    }
+
+    @media (max-width: 900px) {
+      .hud-quick-start {
+        display: inline-flex;
+      }
     }
 
     canvas#raceCanvas {
@@ -880,17 +997,80 @@
       justify-content: flex-end;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 640px) {
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 900px) {
       header {
-        padding: 10px 16px;
+        padding: 10px 14px;
       }
       .brand-text h1 {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
+      }
+      .brand-text p {
+        font-size: 0.72rem;
       }
       .canvas-container {
-        min-height: 380px;
+        aspect-ratio: auto;
+        min-height: 300px;
+        height: clamp(300px, 46vh, 440px);
       }
+      .stage-hud {
+        padding: 8px 12px;
+        gap: 10px;
+      }
+      .timer-display {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 8px 12px;
+      }
+      .brand-icon {
+        font-size: 24px;
+      }
+      .brand-text h1 {
+        font-size: 1.05rem;
+      }
+      .brand-text p {
+        display: none;
+      }
+      .header-actions {
+        gap: 6px;
+      }
+      .btn-icon {
+        padding: 6px 10px;
+        font-size: 0.78rem;
+      }
+      .btn-icon .btn-text-full {
+        display: none;
+      }
+      .canvas-container {
+        min-height: 270px;
+        height: 320px;
+        border-radius: var(--radius-md);
+      }
+      .announcer-bar {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        min-height: 38px;
+      }
+      .announcer-badge {
+        font-size: 0.65rem;
+        padding: 2px 7px;
+      }
+      .podium-container {
+        padding: 12px 8px 6px;
+        gap: 6px;
+      }
+      .podium-stand {
+        margin-top: 4px;
+      }
+      .podium-slot.rank-1 .podium-stand { height: 60px; font-size: 1.25rem; }
+      .podium-slot.rank-2 .podium-stand { height: 46px; font-size: 1.1rem; }
+      .podium-slot.rank-3 .podium-stand { height: 36px; font-size: 1rem; }
+      .podium-duck-avatar { font-size: 1.7rem; }
+      .podium-name { font-size: 0.85rem; }
     }
   </style>
 </head>
@@ -899,33 +1079,41 @@
   <!-- Top Header -->
   <header>
     <div class="brand-wrap">
-      <div class="brand-icon">🏄‍♂️🦆</div>
+      <div class="brand-icon">⚡🏄‍♂️🦆</div>
       <div class="brand-text">
-        <h1>Duck Surfer</h1>
-        <p>Interactive Surfing Race & Random Winner Picker</p>
+        <h1>CyberDuck Surfer</h1>
+        <p>Cybernetic Water Race & Random Winner Picker</p>
       </div>
     </div>
     <div class="header-actions">
+      <button class="btn-icon" id="togglePanelHeaderBtn" title="Toggle Setup Panel (Show/Hide)">
+        <span id="panelToggleIcon">🎛️</span>
+        <span id="panelToggleText">Panel</span>
+      </button>
       <button class="btn-icon" id="soundToggleBtn" title="Toggle Sound Effects">
         <span id="soundIcon">🔊</span>
-        <span id="soundLabel">Sound On</span>
+        <span id="soundLabel" class="btn-text-full">Sound On</span>
       </button>
       <button class="btn-icon" id="downloadHtmlBtn" title="Download standalone HTML file">
         <span>💾</span>
-        <span>Download HTML</span>
+        <span class="btn-text-full">Download</span>
       </button>
     </div>
   </header>
 
   <!-- Main Grid -->
-  <main>
+  <main id="mainContainer">
     <!-- Left Configuration Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="configSidebar">
       <div class="sidebar-header">
-        <h2>
-          <span>📋</span> Participants
-        </h2>
-        <span class="badge-count" id="duckCountBadge">8 Ducks</span>
+        <div class="sidebar-header-left">
+          <h2><span>📋</span> Participants</h2>
+          <span class="badge-count" id="duckCountBadge">8 Ducks</span>
+        </div>
+        <button class="btn-collapse-toggle" id="collapseSidebarBtn" title="Collapse Panel">
+          <span>◀</span>
+          <span>Hide</span>
+        </button>
       </div>
 
       <div class="sidebar-content">
@@ -1013,8 +1201,8 @@
       <!-- Start / Reset Actions -->
       <div class="sidebar-footer">
         <button class="btn-start" id="startRaceBtn">
-          <span>🏄‍♂️</span>
-          <span id="startBtnText">Start Duck Surfer!</span>
+          <span>⚡🏄‍♂️</span>
+          <span id="startBtnText">Start CyberDuck Surfer!</span>
         </button>
         <button class="btn-reset" id="resetRaceBtn">
           <span>🔄</span> Reset to Start
@@ -1027,6 +1215,10 @@
       <!-- Top HUD Tracker -->
       <div class="stage-hud">
         <div class="hud-timer">
+          <button class="floating-panel-btn" id="openSidebarFloatingBtn" title="Open Setup Panel">
+            <span>⚙️</span>
+            <span>Setup Panel</span>
+          </button>
           <div class="timer-display" id="hudTimer">00:15.0</div>
           <div class="timer-label">Countdown</div>
         </div>
@@ -1039,6 +1231,10 @@
         </div>
 
         <div class="hud-controls">
+          <button class="hud-quick-start" id="hudQuickStartBtn" title="Quick Start Race">
+            <span>🏄‍♂️</span>
+            <span>Race!</span>
+          </button>
           <button class="btn-icon" id="cameraToggleBtn" title="Toggle Full Track or Focus Camera">
             <span id="cameraIcon">🔭</span>
             <span id="cameraText">Wide View</span>
@@ -1048,8 +1244,8 @@
 
       <!-- Live Race Announcer Commentary Bar -->
       <div class="announcer-bar" id="announcerBar">
-        <span class="announcer-badge">🎙️ RACE CALL</span>
-        <span class="announcer-text" id="announcerText">Duck surfers lined up at the break. Ready to catch the waves! 🏄‍♂️</span>
+        <span class="announcer-badge">🎙️ CYBER CALL</span>
+        <span class="announcer-text" id="announcerText">Cyber duck surfers powered up and locked at the start gates! 🏄‍♂️⚡</span>
       </div>
 
       <!-- Race Track Canvas Card -->
@@ -1076,8 +1272,8 @@
     <div class="modal-card">
       <div class="modal-header">
         <button class="btn-close-modal" id="closeModalBtn">&times;</button>
-        <h3>🏆 Duck Surfer Results!</h3>
-        <p id="modalSubhead">The surfers have crossed the finish line!</p>
+        <h3>🏆 CyberDuck Surfer Results!</h3>
+        <p id="modalSubhead">All cyber surfers have crossed the finish line!</p>
       </div>
 
       <!-- Top 3 Podium -->
@@ -1392,10 +1588,18 @@
         cameraMode: 'wide', // 'wide' | 'follow'
         cameraX: 0,
         confetti: [],
-        waterOffset: 0
+        waterOffset: 0,
+        sidebarCollapsed: false
       };
 
       // --- DOM Elements ---
+      const mainContainer = document.getElementById('mainContainer');
+      const configSidebar = document.getElementById('configSidebar');
+      const collapseSidebarBtn = document.getElementById('collapseSidebarBtn');
+      const togglePanelHeaderBtn = document.getElementById('togglePanelHeaderBtn');
+      const openSidebarFloatingBtn = document.getElementById('openSidebarFloatingBtn');
+      const hudQuickStartBtn = document.getElementById('hudQuickStartBtn');
+
       const canvas = document.getElementById('raceCanvas');
       const ctx = canvas.getContext('2d');
       const canvasContainer = document.getElementById('canvasContainer');
@@ -1565,18 +1769,27 @@
             return;
           }
 
+          // 0. WINNER SURGE (Once 1st place finishes, all trailing ducks catch a massive swell to the finish line)
+          if (state.winner) {
+            this.targetSpeed = 3.4 + Math.random() * 1.6;
+            this.speedState = 'sprinting';
+            this.phaseTimer = 5.0;
+            this.spawnBurstPuff();
+            return;
+          }
+
           // 1. GATE BREAK (First ~15% of race):
           if (duckProgress < 0.16) {
             if (this.archetype === 'pacesetter') {
-              this.targetSpeed = 1.7 + Math.random() * 0.45; // Fast burst out of gate!
+              this.targetSpeed = 1.8 + Math.random() * 0.45; // Fast burst out of gate!
               this.speedState = 'sprinting';
               this.phaseTimer = 1.6 + Math.random() * 1.2;
             } else if (this.archetype === 'closer') {
-              this.targetSpeed = 0.45 + Math.random() * 0.25; // Slow relaxed start
+              this.targetSpeed = 0.85 + Math.random() * 0.25; // Controlled steady start
               this.speedState = 'coasting';
-              this.phaseTimer = 2.2 + Math.random() * 1.5;
+              this.phaseTimer = 2.0 + Math.random() * 1.2;
             } else {
-              this.targetSpeed = 0.85 + Math.random() * 0.35;
+              this.targetSpeed = 1.05 + Math.random() * 0.35;
               this.speedState = 'cruising';
               this.phaseTimer = 1.5 + Math.random() * 1.5;
             }
@@ -1587,42 +1800,41 @@
           if (duckProgress > 0.68) {
             if (this.archetype === 'closer' && !this.hadLateKick) {
               this.hadLateKick = true;
-              this.targetSpeed = 2.3 + Math.random() * 0.5; // Huge comeback rocket!
+              this.targetSpeed = 2.5 + Math.random() * 0.5; // Huge comeback rocket!
               this.speedState = 'sprinting';
-              this.phaseTimer = 2.8 + Math.random() * 2.0;
+              this.phaseTimer = 3.0 + Math.random() * 2.0;
               this.spawnBurstPuff();
               SoundFX.whooshSurge();
               triggerAnnouncerCall(`🔥 LOOK AT <strong>${escapeHtml(this.name)}</strong> CHARGING FROM THE BACK! WHAT A HOMESTRETCH SPRINT!`);
-            } else if (this.speedState === 'coasting' || Math.random() < 0.55) {
-              // Final desperate sprint for the line
-              this.targetSpeed = 1.85 + Math.random() * 0.65;
+            } else if (this.speedState === 'coasting' || Math.random() < 0.65) {
+              // Final dash for the line
+              this.targetSpeed = 2.1 + Math.random() * 0.65;
               this.speedState = 'sprinting';
-              this.phaseTimer = 1.8 + Math.random() * 1.5;
+              this.phaseTimer = 2.0 + Math.random() * 1.5;
               if (Math.random() < 0.4) SoundFX.whooshSurge();
             } else {
-              // Short stamina fatigue before final lunge
-              this.targetSpeed = 0.95 + Math.random() * 0.4;
+              this.targetSpeed = 1.15 + Math.random() * 0.35;
               this.speedState = 'cruising';
               this.phaseTimer = 1.0 + Math.random() * 0.8;
             }
             return;
           }
 
-          // 3. MID-RACE PACK BATTLES (Alternating between slow coasting and fast surges):
+          // 3. MID-RACE PACK BATTLES (Alternating between pacing and surges):
           const roll = Math.random();
 
           if (this.speedState === 'sprinting' || this.speedState === 'surging') {
-            // After a fast sprint, the duck eases off the gas and coasts slowly (just like a horse taking a breath!)
-            this.targetSpeed = 0.42 + Math.random() * 0.28; // Slow moving
+            // After sprint, cruise smoothly
+            this.targetSpeed = 0.82 + Math.random() * 0.25;
             this.speedState = 'coasting';
-            this.phaseTimer = 1.5 + Math.random() * 2.4; // Coast slowly for 1.5 - 3.9 seconds
+            this.phaseTimer = 1.4 + Math.random() * 1.8;
           } else {
-            // Duck was slow or cruising — chance to ignite an explosive burst!
-            if (roll < 0.56) {
-              const isMegaSprint = roll < 0.24;
-              this.targetSpeed = isMegaSprint ? (2.1 + Math.random() * 0.55) : (1.6 + Math.random() * 0.4);
+            // Chance to ignite surge burst
+            if (roll < 0.60) {
+              const isMegaSprint = roll < 0.28;
+              this.targetSpeed = isMegaSprint ? (2.2 + Math.random() * 0.55) : (1.7 + Math.random() * 0.4);
               this.speedState = isMegaSprint ? 'sprinting' : 'surging';
-              this.phaseTimer = 1.3 + Math.random() * 1.9; // Fast for 1.3 to 3.2 seconds
+              this.phaseTimer = 1.4 + Math.random() * 1.8;
               this.spawnBurstPuff();
 
               if (Math.random() < 0.35) {
@@ -1631,26 +1843,41 @@
               if (isMegaSprint && Math.random() < 0.4) {
                 triggerAnnouncerCall(`💨 <strong>${escapeHtml(this.name)}</strong> hits top gear and accelerates past the pack!`);
               }
-            } else if (roll < 0.82) {
-              this.targetSpeed = 0.88 + Math.random() * 0.28;
+            } else if (roll < 0.85) {
+              this.targetSpeed = 1.05 + Math.random() * 0.25;
               this.speedState = 'cruising';
-              this.phaseTimer = 1.6 + Math.random() * 1.8;
+              this.phaseTimer = 1.5 + Math.random() * 1.5;
             } else {
-              // Stay in slow coasting mode
-              this.targetSpeed = 0.42 + Math.random() * 0.24;
+              this.targetSpeed = 0.82 + Math.random() * 0.20;
               this.speedState = 'coasting';
-              this.phaseTimer = 1.8 + Math.random() * 2.0;
+              this.phaseTimer = 1.5 + Math.random() * 1.5;
             }
           }
         }
 
         update(dt, elapsed, duration, startX, finishX) {
-          if (state.raceState !== 'racing') {
-            this.x = startX;
+          if (state.raceState === 'finished') {
+            // When race is finished, duck MUST stay on the finish line!
+            this.progress = 1.0;
+            this.finished = true;
+            if (this.x < finishX - 15) {
+              this.x = finishX;
+            }
             return;
           }
 
-          if (this.finished) return;
+          if (state.raceState !== 'racing') {
+            this.x = startX;
+            this.progress = 0;
+            return;
+          }
+
+          if (this.finished) {
+            // Keep finished duck gracefully positioned at the finish line
+            this.progress = 1.0;
+            this.x = Math.max(this.x, finishX - 10);
+            return;
+          }
 
           // Determine next speed pacing phase
           this.phaseTimer -= dt;
@@ -1659,12 +1886,12 @@
           }
 
           // Smooth acceleration with realistic momentum inertia
-          const accelFactor = (this.targetSpeed > this.currentSpeed) ? 2.6 : 1.5;
+          const accelFactor = (this.targetSpeed > this.currentSpeed) ? 3.0 : 1.8;
           this.currentSpeed += (this.targetSpeed - this.currentSpeed) * Math.min(1.0, accelFactor * dt);
 
           // Micro paddle flutter
           const paddleJitter = Math.sin(elapsed * 12 + this.id * 3) * (this.currentSpeed > 1.4 ? 0.08 : 0.03);
-          const effectiveSpeed = Math.max(0.18, this.currentSpeed + paddleJitter);
+          const effectiveSpeed = Math.max(0.6, this.currentSpeed + paddleJitter);
 
           // Progress calculation
           const baseRate = 1.0 / duration;
@@ -1779,10 +2006,16 @@
         const playableHeight = canvasHeight - (bankHeight * 2);
 
         const laneHeight = playableHeight / total;
+        const finishX = canvasWidth - 95;
 
         state.ducks.forEach((duck, idx) => {
           duck.targetY = bankHeight + (laneHeight * idx) + (laneHeight / 2);
           duck.y = duck.targetY;
+          if (state.raceState === 'finished') {
+            duck.x = finishX + (idx % 4) * 8 - 4;
+            duck.progress = 1.0;
+            duck.finished = true;
+          }
         });
       }
 
@@ -2100,8 +2333,15 @@
           }
         }
 
+        const total = state.ducks.length || 1;
+        const bankHeight = Math.max(38, canvasHeight * 0.08);
+        const playableHeight = canvasHeight - (bankHeight * 2);
+        const laneHeight = playableHeight / total;
+        const duckScale = Math.max(0.42, Math.min(1.0, laneHeight / 38));
+
         ctx.save();
         ctx.translate(x, renderY);
+        ctx.scale(duckScale, duckScale);
         ctx.rotate(tilt);
 
         // Water Wake Ripple (under duck)
@@ -2285,7 +2525,7 @@
         });
 
         // 9. Floating Name Capsule Tag
-        drawNameTag(duck, x, renderY);
+        drawNameTag(duck, x, renderY, duckScale);
       }
 
       function drawAccessory(acc, hx, hy) {
@@ -2471,7 +2711,7 @@
           spawnConfetti(140);
 
           // Announce thrilling winner!
-          triggerAnnouncerCall(`🏆 AND IT'S <strong>${escapeHtml(duck.name)}</strong> RIDING THE WINNING WAVE! SENSATIONAL SURF! 🥇`, true);
+          triggerAnnouncerCall(`🏆 AND IT'S <strong>${escapeHtml(duck.name)}</strong> RIDING THE CYBER SWELL! CHAMPION SURFER! 🥇`, true);
 
           // Show winner toast banner
           winnerBannerText.textContent = `Winner: ${duck.name}!`;
@@ -2479,6 +2719,17 @@
           setTimeout(() => {
             winnerBanner.classList.remove('show');
           }, 3500);
+
+          // All remaining ducks catch a turbo wave to finish line!
+          state.ducks.forEach(d => {
+            if (!d.finished) {
+              d.speedState = 'sprinting';
+              d.targetSpeed = 3.6 + Math.random() * 1.6;
+              d.currentSpeed = Math.max(d.currentSpeed, 2.8);
+              d.phaseTimer = 5.0;
+              d.spawnBurstPuff();
+            }
+          });
         } else {
           SoundFX.splash();
         }
@@ -2497,6 +2748,22 @@
         state.raceState = 'finished';
         startRaceBtn.disabled = false;
         startBtnText.textContent = 'Race Again!';
+
+        const finishX = canvasWidth - 95;
+
+        // CRITICAL GUARANTEE: Every duck is at the finish line!
+        // None can ever be left at the start line or mid-track!
+        state.ducks.forEach((duck, idx) => {
+          duck.finished = true;
+          duck.progress = 1.0;
+          const stagger = (idx % 4) * 8 - 4;
+          duck.x = finishX + stagger;
+          duck.currentSpeed = 0.5;
+          duck.speedState = 'coasting';
+          if (!duck.finishTime) {
+            duck.finishTime = state.raceTimeElapsed + (idx * 0.06);
+          }
+        });
 
         // Sort rankings
         state.rankings = [...state.ducks].sort((a, b) => {
@@ -2563,7 +2830,7 @@
         state.lastLeaderId = null;
         startBtnText.textContent = 'Surfing...';
 
-        triggerAnnouncerCall("The swell hits! AND THEY'RE OFF IN DUCK SURFER! 🌊🏄‍♂️", true);
+        triggerAnnouncerCall("The cyber swell hits! AND THEY'RE OFF IN CYBERDUCK SURFER! ⚡🌊🏄‍♂️", true);
 
         // Playful initial quacks
         setTimeout(() => SoundFX.quack(), 300);
@@ -2576,7 +2843,7 @@
         state.lastLeaderId = null;
         state.cameraX = 0;
         state.raceTimeElapsed = 0;
-        startBtnText.textContent = 'Start Duck Surfer!';
+        startBtnText.textContent = 'Start CyberDuck Surfer!';
         startRaceBtn.disabled = state.names.length < 2;
 
         const startX = 75;
@@ -2874,12 +3141,63 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'duck-surfer.html';
+        a.download = 'cyberduck-surfer.html';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       });
+
+      // Collapsible Sidebar Functions & Listeners
+      function toggleSidebar(forceState) {
+        if (typeof forceState === 'boolean') {
+          state.sidebarCollapsed = forceState;
+        } else {
+          state.sidebarCollapsed = !state.sidebarCollapsed;
+        }
+
+        if (state.sidebarCollapsed) {
+          mainContainer.classList.add('sidebar-collapsed');
+          if (togglePanelHeaderBtn) {
+            togglePanelHeaderBtn.classList.add('active');
+            const txt = togglePanelHeaderBtn.querySelector('#panelToggleText');
+            if (txt) txt.textContent = 'Show';
+          }
+        } else {
+          mainContainer.classList.remove('sidebar-collapsed');
+          if (togglePanelHeaderBtn) {
+            togglePanelHeaderBtn.classList.remove('active');
+            const txt = togglePanelHeaderBtn.querySelector('#panelToggleText');
+            if (txt) txt.textContent = 'Panel';
+          }
+        }
+
+        // Trigger canvas recalculation smoothly after layout transition
+        setTimeout(() => {
+          resizeCanvas();
+        }, 360);
+      }
+
+      if (collapseSidebarBtn) {
+        collapseSidebarBtn.addEventListener('click', () => toggleSidebar(true));
+      }
+      if (togglePanelHeaderBtn) {
+        togglePanelHeaderBtn.addEventListener('click', () => toggleSidebar());
+      }
+      if (openSidebarFloatingBtn) {
+        openSidebarFloatingBtn.addEventListener('click', () => toggleSidebar(false));
+      }
+
+      if (hudQuickStartBtn) {
+        hudQuickStartBtn.addEventListener('click', () => {
+          if (state.raceState === 'idle' && !startRaceBtn.disabled) {
+            startRace();
+          } else if (state.raceState === 'finished') {
+            closeResultsModal();
+            startRace();
+          }
+        });
+      }
 
       // Camera Toggle
       cameraToggleBtn.addEventListener('click', () => {
@@ -2907,7 +3225,7 @@
       copyResultsBtn.addEventListener('click', () => {
         if (!state.rankings.length) return;
         const text = state.rankings.map(d => `${d.rank}. ${d.name} (${d.finishTime ? d.finishTime.toFixed(2) + 's' : 'Finish'})`).join('\n');
-        navigator.clipboard.writeText(`🏄‍♂️ Duck Surfer Results:\n${text}`).then(() => {
+        navigator.clipboard.writeText(`⚡🏄‍♂️ CyberDuck Surfer Results:\n${text}`).then(() => {
           copyResultsBtn.textContent = '✅ Copied!';
           setTimeout(() => { copyResultsBtn.textContent = '📋 Copy Results'; }, 2000);
         });
