@@ -1,0 +1,4638 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CyberDuck Surfer - Name Picker & Water Race</title>
+  <meta name="description" content="CyberDuck Surfer: Interactive cyber duck surfing race and random winner picker with water wave physics, horse race speed pacing, custom participant lists, collapsible control panel, and podium leaderboard." />
+  <meta property="og:title" content="CyberDuck Surfer - Name Picker & Water Race" />
+  <meta property="og:description" content="CyberDuck Surfer: Interactive cyber duck surfing race and random winner picker with water wave physics, horse race speed pacing, custom participant lists, collapsible control panel, and podium leaderboard." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <style>
+    :root {
+      --primary: #06b6d4;
+      --primary-dark: #0891b2;
+      --primary-light: #cffafe;
+      --cyber-neon: #00f0ff;
+      --cyber-purple: #a855f7;
+      --cyber-pink: #ec4899;
+      --accent: #f59e0b;
+      --accent-yellow: #facc15;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --bg-gradient: linear-gradient(135deg, #090d16 0%, #0f172a 45%, #082f49 100%);
+      --surface: #ffffff;
+      --surface-subtle: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* App Header */
+    header {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 28px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      animation: bobbing-icon 2.4s ease-in-out infinite;
+    }
+
+    @keyframes bobbing-icon {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-4px) rotate(4deg); }
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffffff;
+    }
+
+    .brand-text p {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      padding: 8px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-icon:active {
+      transform: translateY(1px);
+    }
+
+    /* Main Container Grid with Collapsible Sidebar */
+    main,
+    main#mainContainer:nth-of-type(1) {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: clamp(8px, 1.2vw, 16px);
+      box-sizing: border-box;
+      gap: 10px;
+      min-height: 0;
+      transition: padding 0.2s ease;
+    }
+
+    main.sidebar-collapsed,
+    main#mainContainer:nth-of-type(1).sidebar-collapsed {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: clamp(8px, 1.2vw, 16px);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      main,
+      main#mainContainer:nth-of-type(1),
+      main.sidebar-collapsed,
+      main#mainContainer:nth-of-type(1).sidebar-collapsed {
+        padding: 8px;
+        gap: 8px;
+      }
+    }
+
+    /* Fullscreen & Full Window Fit */
+    :fullscreen body,
+    :-webkit-full-screen body,
+    body.full-window-fit {
+      width: 100vw !important;
+      height: 100vh !important;
+      overflow: hidden !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    body.full-window-fit {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: var(--bg-gradient);
+      display: flex;
+      flex-direction: column;
+    }
+
+    :fullscreen main#mainContainer,
+    :-webkit-full-screen main#mainContainer,
+    body.full-window-fit main#mainContainer {
+      width: 100vw !important;
+      height: calc(100vh - 58px) !important;
+      max-width: 100vw !important;
+      padding: 6px 12px !important;
+      flex: 1 !important;
+      margin: 0 !important;
+    }
+
+    :fullscreen .race-stage,
+    :-webkit-full-screen .race-stage,
+    body.full-window-fit .race-stage {
+      height: 100% !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+    }
+
+    :fullscreen .canvas-container,
+    :-webkit-full-screen .canvas-container,
+    body.full-window-fit .canvas-container {
+      flex: 1 !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-height: calc(100vh - 100px);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    main.sidebar-collapsed .sidebar {
+      opacity: 0;
+      transform: translateX(-20px);
+      pointer-events: none;
+      visibility: hidden;
+      margin: 0;
+      padding: 0;
+      border: none;
+      max-width: 0;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        max-height: none;
+      }
+      main.sidebar-collapsed .sidebar {
+        display: none;
+      }
+    }
+
+    .sidebar-header {
+      padding: 14px 18px;
+      background: #f1f5f9;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .sidebar-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-collapse-toggle {
+      background: transparent;
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-sm);
+      color: #64748b;
+      padding: 4px 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-collapse-toggle:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .badge-count {
+      background: var(--primary);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    .sidebar-content {
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .label-hint {
+      font-weight: normal;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    textarea#namesInput {
+      width: 100%;
+      height: 140px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      font-family: inherit;
+      line-height: 1.4;
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fafafa;
+    }
+
+    textarea#namesInput:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+      background: white;
+    }
+
+    .quick-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .btn-pill {
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-full);
+      color: #334155;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .btn-pill:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-pill.danger {
+      color: var(--accent-red);
+    }
+    .btn-pill.danger:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
+    /* Duration Selector */
+    .duration-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .duration-btn {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      padding: 8px 4px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .duration-btn:hover {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+    }
+
+    .duration-btn.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    /* Setting row */
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .settings-row span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .switch-wrap {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch-wrap input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-toggle {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #cbd5e1;
+      transition: .2s;
+      border-radius: 24px;
+    }
+
+    .slider-toggle:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked + .slider-toggle {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider-toggle:before {
+      transform: translateX(20px);
+    }
+
+    /* Start Race Section */
+    .sidebar-footer {
+      padding: 16px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-start {
+      width: 100%;
+      background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+      color: #713f12;
+      border: none;
+      padding: 14px 20px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-start:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 16px rgba(234, 179, 8, 0.5);
+    }
+
+    .btn-start:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-start:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      filter: grayscale(40%);
+    }
+
+    .btn-reset {
+      width: 100%;
+      background: white;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      padding: 9px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-reset:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* Race Stage Area */
+    .race-stage {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+    }
+
+    /* Top HUD / Live Tracker */
+    .stage-hud {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-md);
+    }
+
+    .hud-timer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-display {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #facc15;
+      letter-spacing: 0.05em;
+    }
+
+    .timer-label {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    /* Live Winner Ticker (Winner Only) */
+    .hud-leaders,
+    #liveLeadersTicker,
+    main#mainContainer:nth-of-type(1) > section:nth-of-type(1) > div:nth-of-type(1) > div#liveLeadersTicker:nth-of-type(2) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 2px 0;
+    }
+
+    .leader-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-full);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .leader-pill.winner-badge {
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(245, 158, 11, 0.14));
+      border: 1.5px solid rgba(250, 204, 21, 0.85);
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      color: #fef08a;
+      box-shadow: 0 0 14px rgba(250, 204, 21, 0.25);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .leader-pill.winner-badge .winner-trophy {
+      font-size: 1.15rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.6));
+    }
+
+    .leader-pill.winner-badge .winner-label {
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+      font-weight: 800;
+      color: #fde047;
+    }
+
+    .leader-pill.winner-badge .winner-name {
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: #ffffff;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .leader-pill.winner-badge.is-crowned {
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.45), rgba(249, 115, 22, 0.32));
+      border-color: #fde047;
+      color: #ffffff;
+      box-shadow: 0 0 22px rgba(250, 204, 21, 0.6), 0 0 8px rgba(254, 240, 138, 0.9);
+      animation: winnerBadgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes winnerBadgePulse {
+      0%, 100% {
+        box-shadow: 0 0 16px rgba(250, 204, 21, 0.4);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 26px rgba(250, 204, 21, 0.8), 0 0 10px rgba(254, 240, 138, 0.9);
+        transform: scale(1.05);
+      }
+    }
+
+    .hud-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Live Race Announcer Commentary Bar */
+    .announcer-bar {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(250, 204, 21, 0.35);
+      border-radius: var(--radius-md);
+      padding: 9px 16px;
+      color: #fef08a;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
+      min-height: 44px;
+    }
+
+    .announcer-badge {
+      background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+      color: #713f12;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .announcer-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #fef9c3;
+      font-style: italic;
+      transition: opacity 0.2s ease;
+    }
+
+    .announcer-text strong {
+      color: #ffffff;
+      font-style: normal;
+      font-weight: 800;
+    }
+
+    /* Canvas Stage Card */
+    .canvas-container {
+      position: relative;
+      background: #032a48;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-xl), 0 0 25px rgba(6, 182, 212, 0.2);
+      border: 2px solid rgba(0, 240, 255, 0.35);
+      width: 100%;
+      flex: 1;
+      min-height: clamp(280px, 45vh, 650px);
+      display: flex;
+    }
+
+    /* Setup Modal Button in HUD */
+    .floating-panel-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      color: #38bdf8;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .floating-panel-btn:hover {
+      background: rgba(8, 47, 73, 0.95);
+      border-color: #00f0ff;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Quick Start Button in HUD */
+    .hud-quick-start {
+      display: inline-flex;
+      background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+      color: #713f12;
+      border: none;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(234, 179, 8, 0.4);
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .hud-quick-start:hover {
+      transform: scale(1.04);
+      box-shadow: 0 4px 14px rgba(234, 179, 8, 0.55);
+    }
+
+    canvas#raceCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    /* Countdown Overlay */
+    .countdown-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .countdown-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .countdown-number {
+      font-size: 7rem;
+      font-weight: 900;
+      color: #facc15;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      transform: scale(0.5);
+      animation: count-pulse 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+
+    @keyframes count-pulse {
+      0% { transform: scale(0.6); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .countdown-subtext {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-top: 8px;
+    }
+
+    /* Victory Flash Banner */
+    .winner-banner {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
+      color: #713f12;
+      padding: 12px 32px;
+      border-radius: var(--radius-full);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 40px rgba(250, 204, 21, 0.5);
+      border: 2px solid #ffffff;
+      font-size: 1.25rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 25;
+      pointer-events: none;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .winner-banner.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Modal Leaderboard / Podium */
+    /* =========================================================
+       Cyber Duck Race - Welcome Entry Modal & Cyber Theme
+       ========================================================= */
+    .welcome-backdrop {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(15, 23, 42, 0.94) 0%, rgba(3, 7, 18, 0.98) 100%);
+      backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .welcome-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .welcome-card {
+      position: relative;
+      background: linear-gradient(160deg, #090e1a 0%, #0d1527 50%, #151a30 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      border-radius: 28px;
+      box-shadow: 
+        0 0 50px rgba(6, 182, 212, 0.28),
+        0 0 100px rgba(168, 85, 247, 0.2),
+        0 25px 60px -15px rgba(0, 0, 0, 0.9);
+      width: 100%;
+      max-width: 520px;
+      padding: 38px 32px 34px;
+      text-align: center;
+      overflow: hidden;
+      transform: scale(0.92) translateY(24px);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      color: #ffffff;
+    }
+
+    .welcome-backdrop.open .welcome-card {
+      transform: scale(1) translateY(0);
+    }
+
+    /* Ambient cyber neon glow behind the card */
+    .welcome-glow-border {
+      position: absolute;
+      top: -2px;
+      left: 10%;
+      right: 10%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #38bdf8, #c084fc, #f43f5e, transparent);
+      border-radius: 9999px;
+      filter: blur(1px);
+      animation: cyberScanline 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes cyberScanline {
+      0% { opacity: 0.4; transform: scaleX(0.7); }
+      100% { opacity: 1; transform: scaleX(1.1); }
+    }
+
+    /* Animated Cyber Duck Avatar & Stage */
+    .welcome-hero-anim {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .cyber-duck-stage {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cyber-rings {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cyber-rings .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      animation: cyberRingPulse 3s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+    }
+
+    .cyber-rings .ring-1 {
+      width: 70px;
+      height: 70px;
+      border-color: rgba(56, 189, 248, 0.6);
+      animation-delay: 0s;
+    }
+
+    .cyber-rings .ring-2 {
+      width: 95px;
+      height: 95px;
+      border-color: rgba(168, 85, 247, 0.45);
+      animation-delay: 0.9s;
+    }
+
+    .cyber-rings .ring-3 {
+      width: 120px;
+      height: 120px;
+      border-color: rgba(244, 63, 94, 0.3);
+      animation-delay: 1.8s;
+    }
+
+    @keyframes cyberRingPulse {
+      0% { transform: scale(0.85); opacity: 0.2; }
+      50% { transform: scale(1.08); opacity: 0.9; }
+      100% { transform: scale(0.85); opacity: 0.2; }
+    }
+
+    .duck-avatar-wrap {
+      position: relative;
+      z-index: 2;
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.25) 0%, rgba(15, 23, 42, 0.9) 70%);
+      border: 2px solid #38bdf8;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.6), inset 0 0 16px rgba(56, 189, 248, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: cyberDuckBob 2.4s ease-in-out infinite;
+    }
+
+    @keyframes cyberDuckBob {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(4deg); }
+    }
+
+    .duck-surfer-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font-size: 2.2rem;
+      user-select: none;
+    }
+
+    .duck-surfer-badge .lightning-spark {
+      position: absolute;
+      top: -12px;
+      right: -8px;
+      font-size: 1.2rem;
+      animation: sparkFlicker 1.4s infinite;
+    }
+
+    @keyframes sparkFlicker {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.25); filter: drop-shadow(0 0 6px #facc15); }
+    }
+
+    .welcome-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 4px 14px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+
+    .welcome-title {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff 10%, #38bdf8 50%, #c084fc 80%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.4));
+    }
+
+    .welcome-subtitle {
+      font-size: 0.94rem;
+      line-height: 1.5;
+      color: #94a3b8;
+      max-width: 440px;
+      margin: 0 auto 20px;
+    }
+
+    .welcome-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .w-badge {
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      color: #cbd5e1;
+    }
+
+    .welcome-audio-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #67e8f9;
+      margin-bottom: 24px;
+    }
+
+    .audio-wave-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2.5px;
+      height: 13px;
+    }
+
+    .audio-wave-bars i {
+      display: block;
+      width: 2.5px;
+      background: #22d3ee;
+      border-radius: 2px;
+      animation: soundBarDance 1s ease-in-out infinite alternate;
+    }
+
+    .audio-wave-bars i:nth-child(1) { height: 6px; animation-delay: 0.1s; }
+    .audio-wave-bars i:nth-child(2) { height: 12px; animation-delay: 0.3s; }
+    .audio-wave-bars i:nth-child(3) { height: 9px; animation-delay: 0s; }
+    .audio-wave-bars i:nth-child(4) { height: 14px; animation-delay: 0.4s; }
+    .audio-wave-bars i:nth-child(5) { height: 7px; animation-delay: 0.2s; }
+
+    @keyframes soundBarDance {
+      0% { transform: scaleY(0.3); }
+      100% { transform: scaleY(1.1); }
+    }
+
+    /* Big Prominent Cyber Start Button */
+    .btn-welcome-start {
+      position: relative;
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7 0%, #06b6d4 35%, #8b5cf6 70%, #ec4899 100%);
+      background-size: 200% 200%;
+      color: white;
+      border: none;
+      padding: 16px 28px;
+      font-size: 1.22rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 
+        0 0 28px rgba(6, 182, 212, 0.55),
+        0 10px 24px -6px rgba(0, 0, 0, 0.6);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .btn-welcome-start:hover {
+      background-position: right center;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 
+        0 0 40px rgba(6, 182, 212, 0.8),
+        0 0 20px rgba(236, 72, 153, 0.6),
+        0 14px 28px -6px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-welcome-start:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .btn-welcome-start .btn-start-icon {
+      font-size: 1.4rem;
+      filter: drop-shadow(0 0 6px #facc15);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      padding: 24px 24px 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-header h3 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-header p {
+      color: #bae6fd;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .btn-close-modal {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .btn-close-modal:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Podium Display */
+    .podium-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px 24px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .podium-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      max-width: 150px;
+      text-align: center;
+    }
+
+    .podium-duck-avatar {
+      font-size: 2.2rem;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+      animation: float 2s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .podium-name {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #0f172a;
+      margin: 6px 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .podium-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .podium-stand {
+      width: 100%;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: white;
+      margin-top: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .podium-slot.rank-1 .podium-stand {
+      height: 90px;
+      background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+      color: #713f12;
+      font-size: 1.5rem;
+    }
+
+    .podium-slot.rank-2 .podium-stand {
+      height: 65px;
+      background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+      color: #334155;
+      font-size: 1.3rem;
+    }
+
+    .podium-slot.rank-3 .podium-stand {
+      height: 50px;
+      background: linear-gradient(180deg, #fdba74 0%, #f97316 100%);
+      color: #7c2d12;
+      font-size: 1.2rem;
+    }
+
+    /* Leaderboard List */
+    .leaderboard-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 20px;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .leaderboard-table th {
+      text-align: left;
+      padding: 8px 12px;
+      color: #64748b;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .leaderboard-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .leaderboard-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .rank-cell {
+      width: 44px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .time-cell {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: #64748b;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .winner-removal-notice {
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.14), rgba(245, 158, 11, 0.08));
+      border: 1.5px solid rgba(234, 179, 8, 0.45);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #854d0e;
+      margin: 12px 24px 0;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .results-toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .results-toggle-label input {
+      accent-color: #0284c7;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 900px) {
+      header {
+        padding: 10px 14px;
+      }
+      .brand-text h1 {
+        font-size: 1.15rem;
+      }
+      .brand-text p {
+        font-size: 0.72rem;
+      }
+      .canvas-container {
+        aspect-ratio: auto;
+        min-height: 300px;
+        height: clamp(300px, 46vh, 440px);
+      }
+      .stage-hud {
+        padding: 8px 12px;
+        gap: 10px;
+      }
+      .timer-display {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 8px 12px;
+      }
+      .brand-icon {
+        font-size: 24px;
+      }
+      .brand-text h1 {
+        font-size: 1.05rem;
+      }
+      .brand-text p {
+        display: none;
+      }
+      .header-actions {
+        gap: 6px;
+      }
+      .btn-icon {
+        padding: 6px 10px;
+        font-size: 0.78rem;
+      }
+      .btn-icon .btn-text-full {
+        display: none;
+      }
+      .canvas-container {
+        min-height: 270px;
+        height: 320px;
+        border-radius: var(--radius-md);
+      }
+      .announcer-bar {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        min-height: 38px;
+      }
+      .announcer-badge {
+        font-size: 0.65rem;
+        padding: 2px 7px;
+      }
+      .podium-container {
+        padding: 12px 8px 6px;
+        gap: 6px;
+      }
+      .podium-stand {
+        margin-top: 4px;
+      }
+      .podium-slot.rank-1 .podium-stand { height: 60px; font-size: 1.25rem; }
+      .podium-slot.rank-2 .podium-stand { height: 46px; font-size: 1.1rem; }
+      .podium-slot.rank-3 .podium-stand { height: 36px; font-size: 1rem; }
+      .podium-duck-avatar { font-size: 1.7rem; }
+      .podium-name { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-icon">⚡🏄‍♂️🦆</div>
+      <div class="brand-text">
+        <h1>CyberDuck Surfer</h1>
+        <p>Cybernetic Water Race & Random Winner Picker</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <!-- Top-right controls removed per clean-up requirements -->
+    </div>
+  </header>
+
+  <!-- Main Grid (Sidebar hidden by default) -->
+  <main id="mainContainer" class="sidebar-collapsed">
+    <!-- Right Race Track Area -->
+    <section class="race-stage" style="width: 100%;">
+      <!-- Top HUD Tracker -->
+      <div class="stage-hud">
+        <div class="hud-timer">
+          <button class="floating-panel-btn" id="openSidebarFloatingBtn" title="Open Setup">
+            <span>⚙️</span>
+            <span>Setup</span>
+          </button>
+          <div class="timer-display" id="hudTimer">00:15.0</div>
+          <div class="timer-label">Countdown</div>
+        </div>
+
+        <!-- Live Winner Display (Winner Only) -->
+        <div class="hud-leaders" id="liveLeadersTicker">
+          <div class="leader-pill winner-badge">
+            <span class="winner-trophy">🏆</span>
+            <span class="winner-label">Winner:</span>
+            <span class="winner-name">Waiting...</span>
+          </div>
+        </div>
+
+        <div class="hud-controls">
+          <button class="hud-quick-start" id="hudQuickStartBtn" title="Quick Start Race">
+            <span>🏄‍♂️</span>
+            <span>Race!</span>
+          </button>
+          <button class="btn-icon" id="cameraToggleBtn" title="Wide View - Switch to Fullscreen Fit">
+            <span id="cameraIcon">⛶</span>
+            <span id="cameraText">Wide View</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Race Announcer Commentary Bar -->
+      <div class="announcer-bar" id="announcerBar">
+        <span class="announcer-badge">🎙️ CYBER CALL</span>
+        <span class="announcer-text" id="announcerText">Cyber duck surfers powered up and locked at the start gates! 🏄‍♂️⚡</span>
+      </div>
+
+      <!-- Race Track Canvas Card -->
+      <div class="canvas-container" id="canvasContainer">
+        <canvas id="raceCanvas"></canvas>
+
+        <!-- 3-2-1 Countdown Overlay -->
+        <div class="countdown-overlay" id="countdownOverlay">
+          <div class="countdown-number" id="countdownNumber">3</div>
+          <div class="countdown-subtext" id="countdownSubtext">Get Ready!</div>
+        </div>
+
+        <!-- Winner Toast Banner -->
+        <div class="winner-banner" id="winnerBanner">
+          <span>🏆</span>
+          <span id="winnerBannerText">Winner: Daisy!</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Setup Configuration Modal (Consolidated Controls & Sound Switch) -->
+  <div class="modal-backdrop" id="setupModal">
+    <div class="modal-card" style="max-width: 620px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #082f49 0%, #0369a1 100%);">
+        <button class="btn-close-modal" id="closeSetupModalBtn" title="Close Setup">&times;</button>
+        <h3>⚙️ CyberDuck Setup</h3>
+        <p>Configure participants, race duration, sound effects, and water physics</p>
+      </div>
+
+      <div class="sidebar-content" style="max-height: 65vh; padding: 20px; overflow-y: auto;">
+        <!-- Participant Names -->
+        <div class="form-group">
+          <label for="namesInput">
+            <span>Enter Names (One per line)</span>
+            <span class="badge-count" id="duckCountBadge">8 Ducks</span>
+          </label>
+          <textarea id="namesInput" spellcheck="false" placeholder="Enter one participant per line..."></textarea>
+        </div>
+
+        <!-- Quick Generator & Presets -->
+        <div class="quick-tools">
+          <button class="btn-pill" id="gen10Btn">+10 Ducks</button>
+          <button class="btn-pill" id="gen25Btn">+25 Ducks</button>
+          <button class="btn-pill" id="gen50Btn">+50 Ducks</button>
+          <button class="btn-pill" id="presetOfficeBtn">Office Team</button>
+          <button class="btn-pill" id="presetClassBtn">Classroom</button>
+          <button class="btn-pill" id="shuffleBtn" title="Shuffle current list">🔀 Shuffle</button>
+          <button class="btn-pill danger" id="clearBtn" title="Clear all names">🗑️ Clear</button>
+        </div>
+
+        <!-- Race Duration -->
+        <div class="form-group">
+          <label>
+            <span>Race Duration</span>
+            <span class="label-hint" id="durationHint">15 seconds</span>
+          </label>
+          <div class="duration-grid">
+            <button class="duration-btn" data-sec="10">10s</button>
+            <button class="duration-btn active" data-sec="15">15s</button>
+            <button class="duration-btn" data-sec="30">30s</button>
+            <button class="duration-btn" data-sec="60">60s</button>
+          </div>
+        </div>
+
+        <!-- Race & Audio Settings -->
+        <div class="form-group">
+          <label><span>Race & Audio Settings</span></label>
+          <div class="settings-row">
+            <span id="soundLabel">🔊 Realistic Quack & Audio</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" id="testQuackBtn" class="btn-icon" style="padding: 3px 9px; font-size: 0.72rem; background: rgba(0, 240, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.35); color: #00f0ff; border-radius: 999px; cursor: pointer;">🦆 Test Quack</button>
+              <label class="switch-wrap">
+                <input type="checkbox" id="soundToggle" checked />
+                <span class="slider-toggle"></span>
+              </label>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span title="Ducks alternate between slow paddling and explosive sprint bursts just like a horse race">🏇 Horse Race Pacing</span>
+            <label class="switch-wrap">
+              <input type="checkbox" id="horseRaceToggle" checked />
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span>Show Lanes Grid</span>
+            <label class="switch-wrap">
+              <input type="checkbox" id="lanesToggle" checked />
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span>Duck Accessories</span>
+            <label class="switch-wrap">
+              <input type="checkbox" id="accessoriesToggle" checked />
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span>Speed Trails & Spray</span>
+            <label class="switch-wrap">
+              <input type="checkbox" id="speedTrailsToggle" checked />
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span>Live Announcer Call</span>
+            <label class="switch-wrap">
+              <input type="checkbox" id="announcerToggle" checked />
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span>High Drama Surges</span>
+            <label class="switch-wrap">
+              <input type="checkbox" id="dramaToggle" checked />
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span title="Automatically remove the 1st place winner from the roster for the next race">🏆 Remove Winner for Next Race</span>
+            <label class="switch-wrap">
+              <input type="checkbox" id="removeWinnerToggle" />
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Start / Reset Actions in Setup Modal -->
+      <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+        <button class="btn-reset" id="resetRaceBtn" style="width: auto; padding: 10px 18px;">
+          <span>🔄</span> Reset to Start
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-pill" id="closeSetupModalBtn2" style="padding: 10px 18px; font-size: 0.9rem;">Close</button>
+          <button class="btn-start" id="startRaceBtn" style="width: auto; padding: 10px 22px; font-size: 0.95rem;">
+            <span>⚡🏄‍♂️</span>
+            <span id="startBtnText">Start Race</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard / Podium Modal -->
+  <div class="modal-backdrop" id="leaderboardModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <button class="btn-close-modal" id="closeModalBtn">&times;</button>
+        <h3>🏆 CyberDuck Surfer Results!</h3>
+        <p id="modalSubhead">All cyber surfers have crossed the finish line!</p>
+      </div>
+
+      <!-- Top 3 Podium -->
+      <div class="podium-container">
+        <!-- 2nd Place -->
+        <div class="podium-slot rank-2">
+          <div class="podium-duck-avatar" id="podiumDuck2">🦆</div>
+          <div class="podium-name" id="podiumName2">--</div>
+          <div class="podium-time" id="podiumTime2">--</div>
+          <div class="podium-stand">2</div>
+        </div>
+
+        <!-- 1st Place -->
+        <div class="podium-slot rank-1">
+          <div class="podium-duck-avatar" id="podiumDuck1">👑</div>
+          <div class="podium-name" id="podiumName1">--</div>
+          <div class="podium-time" id="podiumTime1">--</div>
+          <div class="podium-stand">1</div>
+        </div>
+
+        <!-- 3rd Place -->
+        <div class="podium-slot rank-3">
+          <div class="podium-duck-avatar" id="podiumDuck3">🦆</div>
+          <div class="podium-name" id="podiumName3">--</div>
+          <div class="podium-time" id="podiumTime3">--</div>
+          <div class="podium-stand">3</div>
+        </div>
+      </div>
+
+      <!-- Full Standings Table -->
+      <div class="leaderboard-wrap">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th class="rank-cell">Rank</th>
+              <th>Participant</th>
+              <th class="time-cell">Finish Time</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardTbody">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div id="resultsWinnerRemovalNotice" class="winner-removal-notice" style="display: none;"></div>
+      <div class="modal-footer" style="justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <label class="results-toggle-label" title="Remove the 1st place winner from the next race">
+          <input type="checkbox" id="resultsRemoveWinnerToggle" />
+          <span>Remove winner for next race</span>
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-pill" id="copyResultsBtn">📋 Copy Results</button>
+          <button class="btn-start" style="padding: 10px 18px; font-size: 0.95rem; width: auto;" id="rematchBtn">
+            <span>🏁</span> Race Again
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Welcome Entry Modal (Immediate on Game Load) -->
+  <div class="welcome-backdrop open" id="welcomeModal">
+    <div class="welcome-card">
+      <div class="welcome-glow-border"></div>
+      
+      <!-- Animated Cyber Duck Graphic -->
+      <div class="welcome-hero-anim">
+        <div class="cyber-duck-stage">
+          <div class="cyber-rings">
+            <span class="ring ring-1"></span>
+            <span class="ring ring-2"></span>
+            <span class="ring ring-3"></span>
+          </div>
+          <div class="duck-avatar-wrap">
+            <div class="duck-surfer-badge">
+              <span class="duck-emoji">🏄‍♂️</span>
+              <span class="lightning-spark">⚡</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="welcome-content">
+        <div class="welcome-tag">CYBERNETIC WATER RACING</div>
+        <h2 class="welcome-title">Cyber Duck Race</h2>
+        <p class="welcome-subtitle">Ride the neon rapids • Random winner picker with high-speed duck surfing physics & live audio commentary!</p>
+        
+        <div class="welcome-badges">
+          <span class="w-badge">⚡ Turbo Sprint Surges</span>
+          <span class="w-badge">🏆 Live Winner Podium</span>
+        </div>
+
+        <div class="welcome-audio-indicator" id="welcomeAudioIndicator">
+          <span class="audio-wave-bars">
+            <i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span id="welcomeAudioStatus">🎵 Cyber Intro Music Playing</span>
+        </div>
+
+        <!-- Prominent Start Button -->
+        <button class="btn-welcome-start" id="welcomeStartBtn">
+          <span class="btn-start-icon">⚡</span>
+          <span class="btn-start-text">START</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio & Game Engine Script -->
+  <script>
+    (function () {
+      // --- Web Audio Synthesizer (Zero External Dependencies) ---
+      let audioCtx = null;
+      let soundEnabled = true;
+
+      function getAudioContext() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      // Automatically unlock audio context on any user interaction
+      function unlockUserAudio() {
+        const ctx = getAudioContext();
+        if (ctx) {
+          if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+          }
+          SoundFX.initMallardBuffers(ctx);
+        }
+      }
+      window.addEventListener('pointerdown', unlockUserAudio, { passive: true });
+      window.addEventListener('keydown', unlockUserAudio, { passive: true });
+      window.addEventListener('touchstart', unlockUserAudio, { passive: true });
+
+      // Preload real duck audio file in vanilla JS
+      const realDuckAudio = new Audio('https://your-domain.com/path-to-real-duck.mp3');
+      function playRealQuack() {
+        if (!soundEnabled) return;
+        // Reset audio to start so rapid clicks re-trigger instantly
+        realDuckAudio.currentTime = 0;
+        realDuckAudio.play().catch(err => console.log("Audio blocked until interaction:", err));
+      }
+
+      /**
+       * Upgraded Realistic Duck Quack Synthesizer (Web Audio API)
+       * Replicates an authentic, natural, rich duck "quack quack" vocalization:
+       * - Sawtooth wave rich with syrinx odd/even waterfowl harmonics
+       * - Authentic biological downward pitch drop curve (from ~300-380Hz down to ~150-180Hz)
+       * - Resonant nasal bandpass filter (800Hz, Q=2.6) for true bill and vocal tract acoustic resonance
+       * - Dynamic pitch variation (300Hz + Math.random() * 80)
+       * - Supports authentic double quack ("quack-quack" rhythm)
+       */
+      function playRealisticQuack(customPitch = null, duration = 0.20, volume = 0.32, isDouble = false) {
+        if (!soundEnabled) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+          }
+
+          const triggerSingleNote = (startTime, notePitch, noteDur, noteVol) => {
+            // Pitch calculation: 300Hz + Math.random() * 80 so each duck quack sounds distinct
+            let startFreq;
+            if (typeof notePitch === 'number') {
+              startFreq = (notePitch > 50) ? notePitch : (300 + Math.random() * 80) * notePitch;
+            } else {
+              startFreq = 300 + Math.random() * 80;
+            }
+
+            // 1. Sawtooth oscillator for natural duck syrinx harmonics
+            const osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+
+            // 2. Realistic pitch drop contour: gentle vocal onset then downward nasal slide
+            const endFreq = Math.max(90, startFreq * 0.54);
+            osc.frequency.setValueAtTime(startFreq, startTime);
+            osc.frequency.exponentialRampToValueAtTime(startFreq * 1.05, startTime + 0.02);
+            osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + noteDur);
+
+            // 3. Bandpass filter around 800Hz replicating nasal bill resonance
+            const bandpass = ctx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.setValueAtTime(800, startTime);
+            bandpass.Q.setValueAtTime(2.6, startTime);
+
+            // Subtle secondary lowpass to eliminate high-pitched digital buzz/harshness
+            const lowpass = ctx.createBiquadFilter();
+            lowpass.type = 'lowpass';
+            lowpass.frequency.setValueAtTime(2200, startTime);
+
+            // 4. Amplitude envelope: fast attack, natural sustain, warm exponential decay
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.0001, startTime);
+            gain.gain.linearRampToValueAtTime(noteVol, startTime + 0.018);
+            gain.gain.exponentialRampToValueAtTime(noteVol * 0.60, startTime + 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.0001, startTime + noteDur);
+
+            // Routing
+            osc.connect(bandpass);
+            bandpass.connect(lowpass);
+            lowpass.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + noteDur + 0.02);
+          };
+
+          const now = ctx.currentTime;
+          triggerSingleNote(now, customPitch, duration, volume);
+
+          // If double quack requested, play the companion second quack with classic natural cadence
+          if (isDouble) {
+            const secondOffset = duration * 0.95 + 0.05;
+            const secondPitch = (typeof customPitch === 'number' && customPitch > 50)
+              ? customPitch * 0.94
+              : (300 + Math.random() * 80) * 0.94;
+            triggerSingleNote(now + secondOffset, secondPitch, duration * 0.88, volume * 0.85);
+          }
+        } catch (err) {
+          console.warn("Realistic quack audio error:", err);
+        }
+      }
+
+      // Expose globally for vanilla JS access & debugging
+      window.playRealisticQuack = playRealisticQuack;
+      window.playRealQuack = playRealQuack;
+
+      // Sound synthesizer effects
+      const SoundFX = {
+        beep(freq, duration = 0.15, type = 'sine', gainVal = 0.15) {
+          if (!soundEnabled) return;
+          try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+            gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration);
+          } catch (e) {
+            console.warn(e);
+          }
+        },
+
+        // --- Realistic Physical Acoustic Mallard Duck Engine (LF Glottal Flow, Syrinx Bifurcation & Formant Resonators) ---
+        mallardBuffers: null,
+
+        initMallardBuffers(ctx) {
+          if (this.mallardBuffers) return this.mallardBuffers;
+          const sr = 22050;
+
+          const generateBuffer = (duration, pitchStart, pitchEnd, rasp, isShort) => {
+            const numSamples = Math.floor(sr * duration);
+            const audioBuffer = ctx.createBuffer(1, numSamples, sr);
+            const data = audioBuffer.getChannelData(0);
+
+            let phase = 0.0;
+            let subCycle = 0;
+            let f1_y1 = 0, f1_y2 = 0;
+            let f2_y1 = 0, f2_y2 = 0;
+            let f3_y1 = 0, f3_y2 = 0;
+            let z_x1 = 0, z_x2 = 0;
+            let rad_x1 = 0;
+
+            function resonator(x, y1, y2, freq, bw) {
+              const r = Math.exp(-Math.PI * bw / sr);
+              const theta = 2 * Math.PI * freq / sr;
+              const a1 = 2 * r * Math.cos(theta);
+              const a2 = -(r * r);
+              const gain = (1 - r) * Math.sin(theta);
+              const y = a1 * y1 + a2 * y2 + gain * x;
+              return [y, y, y1];
+            }
+
+            for (let i = 0; i < numSamples; i++) {
+              const t = i / sr;
+              const prog = i / numSamples;
+
+              // Biological pitch contour: throat expansion rise in first 24ms, then downward vocal glide
+              let f0;
+              if (t < 0.024) {
+                f0 = pitchStart * (0.88 + 0.24 * (t / 0.024));
+              } else {
+                const rel = (t - 0.024) / (duration - 0.024);
+                f0 = (pitchStart * 1.12) * Math.pow(pitchEnd / (pitchStart * 1.12), Math.pow(rel, 0.82));
+              }
+
+              // Natural tracheal flutter (~36Hz) and fine vocal jitter
+              const flutter = 1.0 + 0.09 * Math.sin(2 * Math.PI * 36 * t);
+              const jitter = 1.0 + 0.03 * (Math.random() - 0.5);
+              f0 *= flutter * jitter;
+
+              phase += f0 / sr;
+              if (phase >= 1.0) {
+                phase -= 1.0;
+                subCycle = 1 - subCycle;
+              }
+
+              // Asymmetric syrinx glottal flow with period-doubling bifurcation (chaotic duck rasp)
+              const bifurcation = subCycle === 0 ? 1.0 : (1.0 - rasp * 0.6);
+              let pulse;
+              if (phase < 0.58) {
+                pulse = Math.pow(Math.sin(Math.PI * phase / 0.58), 1.6) * bifurcation;
+              } else {
+                pulse = -0.55 * Math.sin(Math.PI * (phase - 0.58) / 0.42) * bifurcation;
+              }
+
+              // Syrinx reed harmonics & odd-harmonic grit
+              const reed = 0.40 * (Math.sin(2 * Math.PI * phase) + 0.45 * Math.sin(6 * Math.PI * phase));
+
+              // Pitch-synchronous air turbulence through the bill
+              const noiseMod = Math.pow(Math.sin(Math.PI * phase), 2);
+              const air = (Math.random() * 2 - 1) * 0.32 * noiseMod;
+
+              const excitation = (pulse * 0.65 + reed * 0.35 + air) * flutter;
+              const satEx = Math.tanh(2.8 * excitation);
+
+              // Dynamic formant sweep (F1 trachea, F2 mouth/beak, F3 bill horn)
+              const f1Freq = (780 - 160 * prog) * flutter;
+              const f2Freq = (1680 - 240 * prog) * flutter;
+              const f3Freq = 2650.0;
+
+              const [o1, ny1, ny2] = resonator(satEx, f1_y1, f1_y2, f1Freq, 140);
+              f1_y1 = ny1; f1_y2 = ny2;
+              const [o2, my1, my2] = resonator(satEx, f2_y1, f2_y2, f2Freq, 190);
+              f2_y1 = my1; f2_y2 = my2;
+              const [o3, ly1, ly2] = resonator(satEx, f3_y1, f3_y2, f3Freq, 280);
+              f3_y1 = ly1; f3_y2 = ly2;
+
+              // Nasal zero notch filter at 1150 Hz (cuts mid-frequencies for distinct nasal duck bite)
+              const nzTheta = 2 * Math.PI * 1150.0 / sr;
+              const nasalZero = satEx - 1.88 * Math.cos(nzTheta) * z_x1 + 0.90 * z_x2;
+              z_x2 = z_x1;
+              z_x1 = satEx;
+
+              const vocal = 1.25 * o1 + 1.05 * o2 + 0.35 * o3 + 0.20 * nasalZero;
+
+              // Bill horn radiation differentiator
+              const rad = vocal - 0.70 * rad_x1;
+              rad_x1 = vocal;
+
+              // Amplitude envelope: 14ms attack, resonant body, natural decay
+              let env;
+              if (t < 0.014) {
+                env = Math.pow(t / 0.014, 1.3);
+              } else if (t < 0.10) {
+                env = 1.0 - 0.05 * ((t - 0.014) / 0.086);
+              } else {
+                const decayT = (t - 0.10) / (duration - 0.10);
+                const decayRate = isShort ? 4.4 : 3.5;
+                env = 0.95 * Math.exp(-decayRate * decayT);
+              }
+
+              data[i] = rad * env;
+            }
+
+            // Normalize peak amplitude for clear, punchy presence
+            let peak = 0;
+            for (let i = 0; i < numSamples; i++) {
+              const a = Math.abs(data[i]);
+              if (a > peak) peak = a;
+            }
+            if (peak > 0) {
+              const targetPeak = 0.94;
+              for (let i = 0; i < numSamples; i++) {
+                data[i] = (data[i] / peak) * targetPeak;
+              }
+            }
+
+            return audioBuffer;
+          };
+
+          this.mallardBuffers = {
+            main: generateBuffer(0.34, 305, 200, 0.45, false),
+            short: generateBuffer(0.22, 320, 215, 0.40, true),
+            guttural: generateBuffer(0.38, 275, 175, 0.52, false)
+          };
+
+          return this.mallardBuffers;
+        },
+
+        playSingleMallardQuack(startTime, duration, volMult = 1.0, pitchMod = 1.0, pitchFactor = 1.0, bufferType = 'main') {
+          if (!soundEnabled) return;
+          try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const buffers = this.initMallardBuffers(ctx);
+            if (!buffers) return;
+
+            const buf = buffers[bufferType] || buffers.main;
+            const source = ctx.createBufferSource();
+            const gain = ctx.createGain();
+
+            source.buffer = buf;
+            const effectivePitch = Math.max(0.55, Math.min(2.0, pitchFactor * pitchMod));
+            source.playbackRate.setValueAtTime(effectivePitch, startTime);
+
+            const peakVol = 0.52 * volMult;
+            gain.gain.setValueAtTime(peakVol, startTime);
+
+            source.connect(gain);
+            gain.connect(ctx.destination);
+
+            source.start(startTime);
+          } catch (e) {
+            console.warn(e);
+          }
+        },
+
+        // Multi-quack decrescendo sequence using realistic physical acoustic synthesis
+        playMallardHailCall(pitchFactor = 1.0) {
+          if (!soundEnabled) return;
+          try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            // Authentic natural rhythmic quack-quack sequence
+            playRealisticQuack(pitchFactor, 0.22, 0.34, false);
+            setTimeout(() => {
+              if (soundEnabled) playRealisticQuack(pitchFactor * 0.96, 0.19, 0.29, false);
+            }, 320);
+            setTimeout(() => {
+              if (soundEnabled) playRealisticQuack(pitchFactor * 0.92, 0.17, 0.24, false);
+            }, 620);
+            setTimeout(() => {
+              if (soundEnabled) playRealisticQuack(pitchFactor * 0.88, 0.15, 0.18, false);
+            }, 890);
+          } catch (e) {
+            console.warn(e);
+          }
+        },
+
+        // 2 or 3 quack burst using realistic physical acoustic synthesis
+        playMallardBurst(pitchFactor = 1.0, count = 2) {
+          if (!soundEnabled) return;
+          try {
+            playRealisticQuack(pitchFactor, 0.20, 0.32, false);
+            if (count >= 2) {
+              setTimeout(() => {
+                if (soundEnabled) playRealisticQuack(pitchFactor * 0.95, 0.18, 0.28, false);
+              }, 260);
+            }
+            if (count >= 3) {
+              setTimeout(() => {
+                if (soundEnabled) playRealisticQuack(pitchFactor * 0.91, 0.16, 0.22, false);
+              }, 500);
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+        },
+
+        playRealisticQuack(pitch = null, dur = 0.20, vol = 0.32, isDouble = false) {
+          playRealisticQuack(pitch, dur, vol, isDouble);
+        },
+
+        playRealQuack() {
+          playRealQuack();
+        },
+
+        quack(pitchFactor = 1.0, isDouble = false) {
+          if (!soundEnabled) return;
+          try {
+            playRealisticQuack(pitchFactor, 0.20, 0.32, isDouble);
+          } catch (e) {
+            console.warn(e);
+          }
+        },
+
+        splash() {
+          if (!soundEnabled) return;
+          try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+            // Short white noise burst through a bandpass filter
+            const bufferSize = ctx.sampleRate * 0.12;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(900, now);
+            filter.frequency.linearRampToValueAtTime(300, now + 0.12);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            noise.start(now);
+          } catch (e) {
+            console.warn(e);
+          }
+        },
+
+        starterWhistle() {
+          if (!soundEnabled) return;
+          try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1400, now);
+            osc.frequency.linearRampToValueAtTime(2200, now + 0.08);
+            osc.frequency.linearRampToValueAtTime(1800, now + 0.25);
+
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.28);
+          } catch (e) {
+            console.warn(e);
+          }
+        },
+
+        victoryFanfare() {
+          if (!soundEnabled) return;
+          try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const notes = [
+              { f: 523.25, d: 0.14, pause: 0 },    // C5
+              { f: 659.25, d: 0.14, pause: 0.12 }, // E5
+              { f: 783.99, d: 0.14, pause: 0.24 }, // G5
+              { f: 1046.50, d: 0.45, pause: 0.38 } // C6
+            ];
+
+            const startTime = ctx.currentTime;
+            notes.forEach(note => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(note.f, startTime + note.pause);
+
+              gain.gain.setValueAtTime(0.2, startTime + note.pause);
+              gain.gain.exponentialRampToValueAtTime(0.001, startTime + note.pause + note.d);
+
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(startTime + note.pause);
+              osc.stop(startTime + note.pause + note.d);
+            });
+          } catch (e) {
+            console.warn(e);
+          }
+        },
+
+        whooshSurge() {
+          if (!soundEnabled) return;
+          try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+            
+            // Clean rushing water surge using white noise with lowpass sweep (instead of sawtooth oscillator)
+            const bufferSize = Math.floor(ctx.sampleRate * 0.28);
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, now);
+            filter.frequency.exponentialRampToValueAtTime(1400, now + 0.12);
+            filter.frequency.exponentialRampToValueAtTime(300, now + 0.28);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.12, now + 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            noise.start(now);
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      };
+
+      // --- Intro Background Music Synthesizer (Synthwave Cyber Beat) ---
+      const IntroMusic = {
+        isPlaying: false,
+        masterGain: null,
+        timerId: null,
+        step: 0,
+        bpm: 122,
+
+        init() {
+          const ctx = getAudioContext();
+          if (!ctx) return null;
+          if (!this.masterGain) {
+            this.masterGain = ctx.createGain();
+            this.masterGain.gain.setValueAtTime(0.22, ctx.currentTime);
+            this.masterGain.connect(ctx.destination);
+          }
+          return ctx;
+        },
+
+        start() {
+          if (this.isPlaying) return;
+          const ctx = this.init();
+          if (!ctx) return;
+
+          if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+          }
+
+          this.isPlaying = true;
+          this.step = 0;
+          this.masterGain.gain.cancelScheduledValues(ctx.currentTime);
+          this.masterGain.gain.setValueAtTime(0.001, ctx.currentTime);
+          this.masterGain.gain.linearRampToValueAtTime(0.22, ctx.currentTime + 0.3);
+
+          const indicator = document.getElementById('welcomeAudioIndicator');
+          if (indicator) {
+            indicator.style.opacity = '1';
+          }
+
+          const stepDurationMs = (60 / this.bpm / 4) * 1000; // ~122.95ms per 16th note
+
+          const chords = [
+            { root: 146.83 }, // Dm (D3)
+            { root: 116.54 }, // Bb (Bb2)
+            { root: 130.81 }, // C  (C3)
+            { root: 110.00 }  // Am (A2)
+          ];
+
+          const melodyNotes = [
+            // Bar 1 (Dm)
+            { step: 0, f: 293.66 }, // D4
+            { step: 3, f: 349.23 }, // F4
+            { step: 6, f: 440.00 }, // A4
+            { step: 9, f: 392.00 }, // G4
+            { step: 12, f: 349.23 }, // F4
+            // Bar 2 (Bb)
+            { step: 16, f: 349.23 }, // F4
+            { step: 19, f: 293.66 }, // D4
+            { step: 22, f: 466.16 }, // Bb4
+            { step: 26, f: 523.25 }, // C5
+            { step: 28, f: 587.33 }, // D5
+            // Bar 3 (C)
+            { step: 32, f: 392.00 }, // G4
+            { step: 35, f: 440.00 }, // A4
+            { step: 38, f: 523.25 }, // C5
+            { step: 41, f: 440.00 }, // A4
+            { step: 44, f: 392.00 }, // G4
+            // Bar 4 (Am)
+            { step: 48, f: 349.23 }, // F4
+            { step: 51, f: 329.63 }, // E4
+            { step: 54, f: 293.66 }, // D4
+            { step: 58, f: 329.63 }, // E4
+            { step: 60, f: 293.66 }  // D4
+          ];
+
+          const playStep = () => {
+            if (!this.isPlaying || !soundEnabled) return;
+            const now = ctx.currentTime;
+            const currentStep = this.step % 64;
+            const bar = Math.floor(currentStep / 16);
+            const stepInBar = currentStep % 16;
+            const chord = chords[bar];
+
+            // 1. Kick Drum on every quarter note (beats 0, 4, 8, 12)
+            if (stepInBar % 4 === 0) {
+              const kickOsc = ctx.createOscillator();
+              const kickGain = ctx.createGain();
+              kickOsc.frequency.setValueAtTime(140, now);
+              kickOsc.frequency.exponentialRampToValueAtTime(36, now + 0.08);
+              kickGain.gain.setValueAtTime(0.55, now);
+              kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+              kickOsc.connect(kickGain);
+              kickGain.connect(this.masterGain);
+              kickOsc.start(now);
+              kickOsc.stop(now + 0.13);
+            }
+
+            // 2. Cyber Snare / Clap on beats 4 and 12
+            if (stepInBar === 4 || stepInBar === 12) {
+              const bSize = Math.floor(ctx.sampleRate * 0.08);
+              const b = ctx.createBuffer(1, bSize, ctx.sampleRate);
+              const data = b.getChannelData(0);
+              for (let i = 0; i < bSize; i++) data[i] = Math.random() * 2 - 1;
+              const nSource = ctx.createBufferSource();
+              nSource.buffer = b;
+              const nFilter = ctx.createBiquadFilter();
+              nFilter.type = 'bandpass';
+              nFilter.frequency.setValueAtTime(1400, now);
+              nFilter.Q.setValueAtTime(1.8, now);
+              const sGain = ctx.createGain();
+              sGain.gain.setValueAtTime(0.35, now);
+              sGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+              nSource.connect(nFilter);
+              nFilter.connect(sGain);
+              sGain.connect(this.masterGain);
+              nSource.start(now);
+              nSource.stop(now + 0.11);
+
+              const bodyOsc = ctx.createOscillator();
+              const bodyGain = ctx.createGain();
+              bodyOsc.type = 'triangle';
+              bodyOsc.frequency.setValueAtTime(200, now);
+              bodyOsc.frequency.exponentialRampToValueAtTime(80, now + 0.08);
+              bodyGain.gain.setValueAtTime(0.22, now);
+              bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+              bodyOsc.connect(bodyGain);
+              bodyGain.connect(this.masterGain);
+              bodyOsc.start(now);
+              bodyOsc.stop(now + 0.09);
+            }
+
+            // 3. Hi-Hat on 16th notes
+            const hatSize = Math.floor(ctx.sampleRate * 0.035);
+            const hatBuf = ctx.createBuffer(1, hatSize, ctx.sampleRate);
+            const hData = hatBuf.getChannelData(0);
+            for (let i = 0; i < hatSize; i++) hData[i] = Math.random() * 2 - 1;
+            const hatSource = ctx.createBufferSource();
+            hatSource.buffer = hatBuf;
+            const hatFilter = ctx.createBiquadFilter();
+            hatFilter.type = 'highpass';
+            hatFilter.frequency.setValueAtTime(7000, now);
+            const hatGain = ctx.createGain();
+            const hatVol = (stepInBar % 2 === 0) ? 0.14 : 0.07;
+            hatGain.gain.setValueAtTime(hatVol, now);
+            hatGain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+            hatSource.connect(hatFilter);
+            hatFilter.connect(hatGain);
+            hatGain.connect(this.masterGain);
+            hatSource.start(now);
+            hatSource.stop(now + 0.04);
+
+            // 4. Cyber 16th-Note Bassline
+            const bassOsc = ctx.createOscillator();
+            const bassFilter = ctx.createBiquadFilter();
+            const bassGain = ctx.createGain();
+            bassOsc.type = 'sawtooth';
+            const octaveMult = (stepInBar % 2 === 1) ? 2.0 : 1.0;
+            const bassFreq = (chord.root * 0.5) * octaveMult;
+            bassOsc.frequency.setValueAtTime(bassFreq, now);
+
+            bassFilter.type = 'lowpass';
+            bassFilter.frequency.setValueAtTime(650, now);
+            bassFilter.frequency.exponentialRampToValueAtTime(180, now + 0.1);
+            bassFilter.Q.setValueAtTime(4.0, now);
+
+            bassGain.gain.setValueAtTime(0.3, now);
+            bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+
+            bassOsc.connect(bassFilter);
+            bassFilter.connect(bassGain);
+            bassGain.connect(this.masterGain);
+            bassOsc.start(now);
+            bassOsc.stop(now + 0.12);
+
+            // 5. Synth Lead Melody note
+            const mel = melodyNotes.find(m => m.step === currentStep);
+            if (mel) {
+              const leadOsc1 = ctx.createOscillator();
+              const leadOsc2 = ctx.createOscillator();
+              const leadFilter = ctx.createBiquadFilter();
+              const leadGain = ctx.createGain();
+
+              leadOsc1.type = 'sawtooth';
+              leadOsc2.type = 'square';
+              leadOsc1.frequency.setValueAtTime(mel.f, now);
+              leadOsc2.frequency.setValueAtTime(mel.f * 1.006, now);
+
+              leadFilter.type = 'lowpass';
+              leadFilter.frequency.setValueAtTime(2400, now);
+              leadFilter.frequency.exponentialRampToValueAtTime(800, now + 0.28);
+              leadFilter.Q.setValueAtTime(2.5, now);
+
+              leadGain.gain.setValueAtTime(0.22, now);
+              leadGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+              leadOsc1.connect(leadFilter);
+              leadOsc2.connect(leadFilter);
+              leadFilter.connect(leadGain);
+              leadGain.connect(this.masterGain);
+
+              leadOsc1.start(now);
+              leadOsc2.start(now);
+              leadOsc1.stop(now + 0.32);
+              leadOsc2.stop(now + 0.32);
+            }
+
+            this.step++;
+          };
+
+          this.timerId = setInterval(playStep, stepDurationMs);
+        },
+
+        stop() {
+          if (!this.isPlaying) return;
+          this.isPlaying = false;
+          if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+          }
+          if (this.masterGain && audioCtx) {
+            const now = audioCtx.currentTime;
+            this.masterGain.gain.cancelScheduledValues(now);
+            this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now);
+            this.masterGain.gain.linearRampToValueAtTime(0.0001, now + 0.04);
+          }
+          const indicator = document.getElementById('welcomeAudioIndicator');
+          if (indicator) {
+            indicator.style.opacity = '0';
+          }
+        }
+      };
+
+      // --- Duck Accessories and Palettes ---
+      const DUCK_COLORS = [
+        { name: 'Classic Yellow', body: '#facc15', shadow: '#ca8a04', beak: '#f97316' },
+        { name: 'Mint Green', body: '#34d399', shadow: '#059669', beak: '#f97316' },
+        { name: 'Candy Pink', body: '#f472b6', shadow: '#db2777', beak: '#fb923c' },
+        { name: 'Sky Blue', body: '#38bdf8', shadow: '#0284c7', beak: '#f97316' },
+        { name: 'Orange Peel', body: '#fb923c', shadow: '#ea580c', beak: '#dc2626' },
+        { name: 'Purple Lavender', body: '#c084fc', shadow: '#9333ea', beak: '#f97316' },
+        { name: 'Coral Red', body: '#fb7185', shadow: '#e11d48', beak: '#f97316' },
+        { name: 'Lime Electric', body: '#a3e635', shadow: '#65a30d', beak: '#f97316' },
+        { name: 'Gold Sparkle', body: '#fde047', shadow: '#d97706', beak: '#ea580c' },
+        { name: 'Aqua Marine', body: '#2dd4bf', shadow: '#0d9488', beak: '#f97316' },
+        { name: 'Royal Indigo', body: '#818cf8', shadow: '#4f46e5', beak: '#fb923c' },
+        { name: 'Emerald Gem', body: '#4ade80', shadow: '#16a34a', beak: '#f97316' }
+      ];
+
+      const ACCESSORIES = ['none', 'sunglasses', 'crown', 'partyHat', 'pirateHat', 'headband', 'flower'];
+
+      // --- Sample Presets ---
+      const PRESETS = {
+        office: ["Sarah M.", "Alex Chen", "David K.", "Elena R.", "Marcus B.", "Priya Patel", "Jordan Lee", "Chloe Dupont"],
+        classroom: ["Emma", "Liam", "Olivia", "Noah", "Sophia", "Jackson", "Ava", "Lucas", "Mia", "Benjamin"],
+        defaultNames: ["Swift Quacker", "Captain Bill", "Lucky Ducky", "Waddles", "Rubber Splash", "Feather Speed", "Turbo Mallard", "Golden Beak"]
+      };
+
+      // --- Game State ---
+      const state = {
+        names: [...PRESETS.defaultNames],
+        ducks: [],
+        raceDuration: 15, // seconds
+        raceState: 'idle', // 'idle' | 'countdown' | 'racing' | 'finished'
+        raceStartTime: 0,
+        raceTimeElapsed: 0,
+        showLanes: true,
+        showAccessories: true,
+        highDrama: true,
+        horseRaceMode: true,
+        speedTrails: true,
+        announcerEnabled: true,
+        lastLeaderId: null,
+        lastAnnounceTime: 0,
+        winner: null,
+        rankings: [],
+        removeWinnerForNextRace: false,
+        removedWinners: [],
+        raceQuackTimer: 1.0,
+        cameraMode: 'wide', // 'wide' | 'follow'
+        cameraX: 0,
+        confetti: [],
+        waterOffset: 0,
+        sidebarCollapsed: true
+      };
+
+      // --- DOM Elements ---
+      const welcomeModal = document.getElementById('welcomeModal');
+      const welcomeStartBtn = document.getElementById('welcomeStartBtn');
+      const welcomeAudioIndicator = document.getElementById('welcomeAudioIndicator');
+      const welcomeAudioStatus = document.getElementById('welcomeAudioStatus');
+
+      const mainContainer = document.getElementById('mainContainer');
+      const setupModal = document.getElementById('setupModal');
+      const openSidebarFloatingBtn = document.getElementById('openSidebarFloatingBtn');
+      const closeSetupModalBtn = document.getElementById('closeSetupModalBtn');
+      const closeSetupModalBtn2 = document.getElementById('closeSetupModalBtn2');
+      const hudQuickStartBtn = document.getElementById('hudQuickStartBtn');
+
+      const canvas = document.getElementById('raceCanvas');
+      const ctx = canvas.getContext('2d');
+      const canvasContainer = document.getElementById('canvasContainer');
+
+      const namesInput = document.getElementById('namesInput');
+      const duckCountBadge = document.getElementById('duckCountBadge');
+      const startRaceBtn = document.getElementById('startRaceBtn');
+      const startBtnText = document.getElementById('startBtnText');
+      const resetRaceBtn = document.getElementById('resetRaceBtn');
+
+      const gen10Btn = document.getElementById('gen10Btn');
+      const gen25Btn = document.getElementById('gen25Btn');
+      const gen50Btn = document.getElementById('gen50Btn');
+      const presetOfficeBtn = document.getElementById('presetOfficeBtn');
+      const presetClassBtn = document.getElementById('presetClassBtn');
+      const shuffleBtn = document.getElementById('shuffleBtn');
+      const clearBtn = document.getElementById('clearBtn');
+
+      const durationHint = document.getElementById('durationHint');
+      const durationButtons = document.querySelectorAll('.duration-btn');
+
+      const horseRaceToggle = document.getElementById('horseRaceToggle');
+      const lanesToggle = document.getElementById('lanesToggle');
+      const accessoriesToggle = document.getElementById('accessoriesToggle');
+      const speedTrailsToggle = document.getElementById('speedTrailsToggle');
+      const announcerToggle = document.getElementById('announcerToggle');
+      const dramaToggle = document.getElementById('dramaToggle');
+      const removeWinnerToggle = document.getElementById('removeWinnerToggle');
+      const resultsRemoveWinnerToggle = document.getElementById('resultsRemoveWinnerToggle');
+      const resultsWinnerRemovalNotice = document.getElementById('resultsWinnerRemovalNotice');
+
+      const announcerBar = document.getElementById('announcerBar');
+      const announcerText = document.getElementById('announcerText');
+
+      const soundToggle = document.getElementById('soundToggle');
+      const soundLabel = document.getElementById('soundLabel');
+      const testQuackBtn = document.getElementById('testQuackBtn');
+
+      const hudTimer = document.getElementById('hudTimer');
+      const liveLeadersTicker = document.getElementById('liveLeadersTicker');
+      const cameraToggleBtn = document.getElementById('cameraToggleBtn');
+      const cameraText = document.getElementById('cameraText');
+
+      const countdownOverlay = document.getElementById('countdownOverlay');
+      const countdownNumber = document.getElementById('countdownNumber');
+      const countdownSubtext = document.getElementById('countdownSubtext');
+      const winnerBanner = document.getElementById('winnerBanner');
+      const winnerBannerText = document.getElementById('winnerBannerText');
+
+      const leaderboardModal = document.getElementById('leaderboardModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const rematchBtn = document.getElementById('rematchBtn');
+      const copyResultsBtn = document.getElementById('copyResultsBtn');
+      const leaderboardTbody = document.getElementById('leaderboardTbody');
+
+      const podiumName1 = document.getElementById('podiumName1');
+      const podiumName2 = document.getElementById('podiumName2');
+      const podiumName3 = document.getElementById('podiumName3');
+      const podiumTime1 = document.getElementById('podiumTime1');
+      const podiumTime2 = document.getElementById('podiumTime2');
+      const podiumTime3 = document.getElementById('podiumTime3');
+
+      // --- Live Announcer Helper ---
+      function triggerAnnouncerCall(htmlContent, force = false) {
+        if (!state.announcerEnabled || !announcerText) return;
+        const now = performance.now();
+        if (!force && (now - state.lastAnnounceTime < 2200)) return; // Debounce calls
+        state.lastAnnounceTime = now;
+
+        announcerText.style.opacity = '0.2';
+        setTimeout(() => {
+          announcerText.innerHTML = htmlContent;
+          announcerText.style.opacity = '1';
+        }, 120);
+      }
+
+      // --- Responsive Canvas Setup ---
+      let dpr = window.devicePixelRatio || 1;
+      let canvasWidth = 1000;
+      let canvasHeight = 600;
+
+      function resizeCanvas() {
+        const rect = canvasContainer.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          canvasWidth = rect.width;
+          canvasHeight = rect.height;
+        }
+
+        const targetW = Math.round(canvasWidth * dpr);
+        const targetH = Math.round(canvasHeight * dpr);
+
+        if (canvas.width !== targetW || canvas.height !== targetH) {
+          canvas.width = targetW;
+          canvas.height = targetH;
+          ctx.scale(dpr, dpr);
+        }
+
+        calculateDuckLanes();
+      }
+
+      window.addEventListener('resize', () => {
+        dpr = window.devicePixelRatio || 1;
+        requestAnimationFrame(resizeCanvas);
+      });
+
+      // --- Duck Initialization & Horse Race Physics ---
+      class Duck {
+        constructor(id, name, index, total) {
+          this.id = id;
+          this.name = name;
+          this.index = index;
+          this.color = DUCK_COLORS[index % DUCK_COLORS.length];
+          this.accessory = ACCESSORIES[(index + 1) % ACCESSORIES.length];
+
+          this.progress = 0; // 0 to 1
+          this.x = 0;
+          this.y = 0;
+          this.targetY = 0;
+
+          // Horse race racing archetype
+          // 1. Pacesetter (fast start, leads early, cycles between breather and surge)
+          // 2. Stalker (sits off pace at medium speed, launches explosive mid-race burst)
+          // 3. Deep Closer (starts slow and steady in the rear, explodes in the homestretch)
+          // 4. Wildcard (frequent rapid oscillations between slow paddling and nitro sprints)
+          // 5. Grinder (relentless rhythm with snappy accelerations)
+          const archetypes = ['pacesetter', 'stalker', 'closer', 'wildcard', 'grinder'];
+          this.archetype = archetypes[index % archetypes.length];
+
+          // Dynamic speed states: 'coasting' (slow) | 'cruising' (normal) | 'surging' (fast) | 'sprinting' (hyper fast)
+          this.currentSpeed = 1.0;
+          this.targetSpeed = 1.0;
+          this.speedState = 'cruising';
+          this.phaseTimer = 0.4 + Math.random() * 1.2;
+          this.hadLateKick = false;
+
+          // Procedural animation parameters
+          this.bobOffset = Math.random() * Math.PI * 2;
+          this.bobSpeed = 3.0;
+          this.tilt = 0;         // Forward lean when speeding up
+          this.targetTilt = 0;
+          this.wingAngle = 0;
+          this.wingFlapSpeed = 6.0;
+
+          // Water physics & visual particles
+          this.splashes = [];
+          this.wakeFoam = [];
+          this.speedLines = [];
+
+          this.finishTime = null;
+          this.finished = false;
+          this.rank = 0;
+        }
+
+        spawnBurstPuff() {
+          if (!state.speedTrails) return;
+          // Erupt backward foam spray when accelerating abruptly
+          for (let i = 0; i < 9; i++) {
+            this.splashes.push({
+              x: this.x - 14 - Math.random() * 16,
+              y: this.y + 8 + (Math.random() - 0.5) * 12,
+              vx: -35 - Math.random() * 45,
+              vy: (Math.random() - 0.5) * 24,
+              radius: 3 + Math.random() * 4,
+              opacity: 0.85,
+              life: 0.45
+            });
+          }
+        }
+
+        decideNextPacing(duckProgress, elapsed, duration) {
+          if (!state.horseRaceMode) {
+            // Classic gentle variation
+            this.targetSpeed = 0.9 + Math.random() * 0.22;
+            this.speedState = 'cruising';
+            this.phaseTimer = 2.0 + Math.random() * 2.0;
+            return;
+          }
+
+          // 0. WINNER SURGE (Once 1st place finishes, all trailing ducks catch a massive swell to the finish line)
+          if (state.winner) {
+            this.targetSpeed = 3.4 + Math.random() * 1.6;
+            this.speedState = 'sprinting';
+            this.phaseTimer = 5.0;
+            this.spawnBurstPuff();
+            return;
+          }
+
+          // 1. GATE BREAK (First ~15% of race):
+          if (duckProgress < 0.16) {
+            if (this.archetype === 'pacesetter') {
+              this.targetSpeed = 1.8 + Math.random() * 0.45; // Fast burst out of gate!
+              this.speedState = 'sprinting';
+              this.phaseTimer = 1.6 + Math.random() * 1.2;
+            } else if (this.archetype === 'closer') {
+              this.targetSpeed = 0.85 + Math.random() * 0.25; // Controlled steady start
+              this.speedState = 'coasting';
+              this.phaseTimer = 2.0 + Math.random() * 1.2;
+            } else {
+              this.targetSpeed = 1.05 + Math.random() * 0.35;
+              this.speedState = 'cruising';
+              this.phaseTimer = 1.5 + Math.random() * 1.5;
+            }
+            return;
+          }
+
+          // 2. HOMESTRETCH / FINAL DASH (Last 32% of race):
+          if (duckProgress > 0.68) {
+            if (this.archetype === 'closer' && !this.hadLateKick) {
+              this.hadLateKick = true;
+              this.targetSpeed = 2.5 + Math.random() * 0.5; // Huge comeback rocket!
+              this.speedState = 'sprinting';
+              this.phaseTimer = 3.0 + Math.random() * 2.0;
+              this.spawnBurstPuff();
+              SoundFX.whooshSurge();
+              SoundFX.quack(0.98, true); // Realistic authentic double quack on homestretch kick
+              triggerAnnouncerCall(`🔥 LOOK AT <strong>${escapeHtml(this.name)}</strong> CHARGING FROM THE BACK! WHAT A HOMESTRETCH SPRINT!`);
+            } else if (this.speedState === 'coasting' || Math.random() < 0.65) {
+              // Final dash for the line
+              this.targetSpeed = 2.1 + Math.random() * 0.65;
+              this.speedState = 'sprinting';
+              this.phaseTimer = 2.0 + Math.random() * 1.5;
+              if (Math.random() < 0.4) SoundFX.whooshSurge();
+            } else {
+              this.targetSpeed = 1.15 + Math.random() * 0.35;
+              this.speedState = 'cruising';
+              this.phaseTimer = 1.0 + Math.random() * 0.8;
+            }
+            return;
+          }
+
+          // 3. MID-RACE PACK BATTLES (Alternating between pacing and surges):
+          const roll = Math.random();
+
+          if (this.speedState === 'sprinting' || this.speedState === 'surging') {
+            // After sprint, cruise smoothly
+            this.targetSpeed = 0.82 + Math.random() * 0.25;
+            this.speedState = 'coasting';
+            this.phaseTimer = 1.4 + Math.random() * 1.8;
+          } else {
+            // Chance to ignite surge burst
+            if (roll < 0.60) {
+              const isMegaSprint = roll < 0.28;
+              this.targetSpeed = isMegaSprint ? (2.2 + Math.random() * 0.55) : (1.7 + Math.random() * 0.4);
+              this.speedState = isMegaSprint ? 'sprinting' : 'surging';
+              this.phaseTimer = 1.4 + Math.random() * 1.8;
+              this.spawnBurstPuff();
+
+              if (Math.random() < 0.35) {
+                SoundFX.whooshSurge();
+              }
+              if (Math.random() < 0.20) {
+                SoundFX.quack(0.95 + ((this.id * 7) % 7) * 0.03, false);
+              }
+              if (isMegaSprint && Math.random() < 0.4) {
+                triggerAnnouncerCall(`💨 <strong>${escapeHtml(this.name)}</strong> hits top gear and accelerates past the pack!`);
+              }
+            } else if (roll < 0.85) {
+              this.targetSpeed = 1.05 + Math.random() * 0.25;
+              this.speedState = 'cruising';
+              this.phaseTimer = 1.5 + Math.random() * 1.5;
+            } else {
+              this.targetSpeed = 0.82 + Math.random() * 0.20;
+              this.speedState = 'coasting';
+              this.phaseTimer = 1.5 + Math.random() * 1.5;
+            }
+          }
+        }
+
+        update(dt, elapsed, duration, startX, finishX) {
+          if (state.raceState === 'finished') {
+            // When race is finished, duck MUST stay on the finish line!
+            this.progress = 1.0;
+            this.finished = true;
+            if (this.x < finishX - 15) {
+              this.x = finishX;
+            }
+            return;
+          }
+
+          if (state.raceState !== 'racing') {
+            this.x = startX;
+            this.progress = 0;
+            return;
+          }
+
+          if (this.finished) {
+            // Keep finished duck gracefully positioned at the finish line
+            this.progress = 1.0;
+            this.x = Math.max(this.x, finishX - 10);
+            return;
+          }
+
+          // Determine next speed pacing phase
+          this.phaseTimer -= dt;
+          if (this.phaseTimer <= 0) {
+            this.decideNextPacing(this.progress, elapsed, duration);
+          }
+
+          // Smooth acceleration with realistic momentum inertia
+          const accelFactor = (this.targetSpeed > this.currentSpeed) ? 3.0 : 1.8;
+          this.currentSpeed += (this.targetSpeed - this.currentSpeed) * Math.min(1.0, accelFactor * dt);
+
+          // Micro paddle flutter
+          const paddleJitter = Math.sin(elapsed * 12 + this.id * 3) * (this.currentSpeed > 1.4 ? 0.08 : 0.03);
+          const effectiveSpeed = Math.max(0.6, this.currentSpeed + paddleJitter);
+
+          // Progress calculation
+          const baseRate = 1.0 / duration;
+          const deltaProgress = baseRate * effectiveSpeed * dt;
+          this.progress = Math.min(1.0, this.progress + deltaProgress);
+
+          // Interpolate X position
+          this.x = startX + (finishX - startX) * this.progress;
+
+          // Dynamic visual adjustments tied directly to current speed:
+          // Slow: gentle lazy bob (2.2Hz), slow wing flap, relaxed posture
+          // Fast: frantic rapid bob (8-10Hz), vigorous wing flapping, aerodynamic forward tilt
+          const speedRatio = Math.max(0.2, this.currentSpeed);
+          this.bobSpeed = 2.0 + speedRatio * 3.8;
+          this.wingFlapSpeed = 4.0 + speedRatio * 11.0;
+          this.wingAngle = Math.sin(elapsed * this.wingFlapSpeed + this.id) * (0.15 + Math.min(0.65, speedRatio * 0.3));
+
+          // Forward lean / crouch when speeding
+          if (this.currentSpeed > 1.35) {
+            this.targetTilt = -0.14 - Math.min(0.22, (this.currentSpeed - 1.35) * 0.2); // leaning forward into water!
+          } else if (this.currentSpeed < 0.65) {
+            this.targetTilt = 0.06; // relaxed backward float
+          } else {
+            this.targetTilt = 0;
+          }
+          this.tilt += (this.targetTilt - this.tilt) * Math.min(1.0, 5.0 * dt);
+
+          // Particles: Foam wake, splashes, speed lines
+          if (state.speedTrails) {
+            if (this.currentSpeed > 1.35) {
+              // Rapid bubbly foam trail behind duck
+              this.wakeFoam.push({
+                x: this.x - 16,
+                y: this.y + 6 + (Math.random() - 0.5) * 8,
+                radius: 2.5 + (this.currentSpeed - 1.35) * 3.5,
+                opacity: 0.8,
+                life: 0.38
+              });
+
+              // Speed wind lines whooshing past duck
+              if (Math.random() < 0.45) {
+                this.speedLines.push({
+                  x: this.x + 22 + Math.random() * 8,
+                  y: this.y - 12 + Math.random() * 24,
+                  len: 16 + this.currentSpeed * 12,
+                  opacity: 0.7,
+                  life: 0.24
+                });
+              }
+            } else if (Math.random() < 0.12) {
+              // Occasional gentle ripple when moving slow
+              this.wakeFoam.push({
+                x: this.x - 12,
+                y: this.y + 8,
+                radius: 3.5,
+                opacity: 0.4,
+                life: 0.5
+              });
+            }
+          }
+
+          // Update foam particles
+          for (let i = this.wakeFoam.length - 1; i >= 0; i--) {
+            const wf = this.wakeFoam[i];
+            wf.life -= dt;
+            wf.radius += dt * 5;
+            wf.opacity = Math.max(0, wf.life / 0.4 * 0.8);
+            if (wf.life <= 0) {
+              this.wakeFoam.splice(i, 1);
+            }
+          }
+
+          // Update speed lines
+          for (let i = this.speedLines.length - 1; i >= 0; i--) {
+            const sl = this.speedLines[i];
+            sl.life -= dt;
+            sl.x -= dt * 60;
+            sl.opacity = Math.max(0, sl.life / 0.24 * 0.7);
+            if (sl.life <= 0) {
+              this.speedLines.splice(i, 1);
+            }
+          }
+
+          // Update splash particles
+          for (let i = this.splashes.length - 1; i >= 0; i--) {
+            const sp = this.splashes[i];
+            sp.life -= dt;
+            if (sp.vx) sp.x += sp.vx * dt;
+            if (sp.vy) sp.y += sp.vy * dt;
+            sp.radius += dt * 7;
+            sp.opacity = Math.max(0, sp.life / 0.45 * 0.8);
+            if (sp.life <= 0) {
+              this.splashes.splice(i, 1);
+            }
+          }
+
+          // Check for finish line crossing
+          if (this.progress >= 1.0 && !this.finished) {
+            this.finished = true;
+            this.finishTime = elapsed;
+            onDuckFinish(this);
+          }
+        }
+      }
+
+      const TRACK_START_X = 85; // Duck start position behind the start line with space behind
+      const TRACK_GATE_X = 145; // Start line in front of the ducks
+      const TRACK_FINISH_X_OFFSET = 100;
+
+      function calculateDuckLanes() {
+        if (!state.ducks.length) return;
+        const total = state.ducks.length;
+
+        // Reserve space for top and bottom riverbanks
+        const bankHeight = Math.max(38, canvasHeight * 0.08);
+        const playableHeight = canvasHeight - (bankHeight * 2);
+
+        const laneHeight = playableHeight / total;
+        const finishX = canvasWidth - TRACK_FINISH_X_OFFSET;
+
+        state.ducks.forEach((duck, idx) => {
+          duck.targetY = bankHeight + (laneHeight * idx) + (laneHeight / 2);
+          duck.y = duck.targetY;
+          if (state.raceState === 'finished') {
+            duck.x = finishX + (idx % 4) * 8 - 4;
+            duck.progress = 1.0;
+            duck.finished = true;
+          } else if (state.raceState === 'idle') {
+            duck.x = TRACK_START_X;
+            duck.progress = 0;
+          }
+        });
+      }
+
+      function initDucksFromNames() {
+        const raw = namesInput.value.trim();
+        const list = raw.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+        if (list.length < 2) {
+          startRaceBtn.disabled = true;
+          duckCountBadge.textContent = `${list.length} Ducks (Min 2)`;
+          duckCountBadge.style.background = '#ef4444';
+        } else {
+          startRaceBtn.disabled = state.raceState === 'racing' || state.raceState === 'countdown';
+          duckCountBadge.textContent = `${list.length} Ducks`;
+          duckCountBadge.style.background = '#0284c7';
+        }
+
+        state.names = list;
+        state.ducks = list.map((name, i) => new Duck(i + 1, name, i, list.length));
+        calculateDuckLanes();
+        updateLeaderboardDisplay();
+      }
+
+      // --- Confetti Particle System ---
+      function spawnConfetti(count = 90) {
+        const colors = ['#facc15', '#f43f5e', '#38bdf8', '#4ade80', '#c084fc', '#fb923c', '#ffffff'];
+        for (let i = 0; i < count; i++) {
+          state.confetti.push({
+            x: canvasWidth * 0.85 + (Math.random() - 0.5) * 100,
+            y: canvasHeight * 0.5 + (Math.random() - 0.5) * 200,
+            vx: -3 + (Math.random() - 0.5) * 8,
+            vy: -5 - Math.random() * 7,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: 6 + Math.random() * 8,
+            rotation: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.2,
+            opacity: 1,
+            life: 2.5 + Math.random() * 1.5
+          });
+        }
+      }
+
+      function updateAndDrawConfetti(ctx, dt) {
+        for (let i = state.confetti.length - 1; i >= 0; i--) {
+          const p = state.confetti[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 9.8 * dt * 0.6; // gravity
+          p.rotation += p.vRot;
+          p.life -= dt;
+          p.opacity = Math.max(0, p.life / 2);
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.globalAlpha = p.opacity;
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+          ctx.restore();
+
+          if (p.life <= 0 || p.y > canvasHeight + 50) {
+            state.confetti.splice(i, 1);
+          }
+        }
+      }
+
+      // --- Rendering: Water, Riverbanks, Finish Line & Ducks ---
+      function drawRiver(time) {
+        state.waterOffset = (time * 0.08) % 60;
+
+        // River deep water base
+        const grad = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+        grad.addColorStop(0, '#0369a1');
+        grad.addColorStop(0.5, '#0284c7');
+        grad.addColorStop(1, '#0369a1');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // Animated flow wave currents
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+        ctx.lineWidth = 2.5;
+
+        for (let y = 50; y < canvasHeight - 40; y += 42) {
+          ctx.beginPath();
+          for (let x = -60; x < canvasWidth + 60; x += 30) {
+            const waveY = y + Math.sin((x - state.waterOffset * 20) * 0.03 + y) * 5;
+            if (x === -60) ctx.moveTo(x, waveY);
+            else ctx.lineTo(x, waveY);
+          }
+          ctx.stroke();
+        }
+
+        // Fast forward motion streak lines
+        ctx.strokeStyle = 'rgba(224, 242, 254, 0.2)';
+        ctx.lineWidth = 1.5;
+        const streakSpeed = (time * 0.35) % canvasWidth;
+        for (let i = 0; i < 18; i++) {
+          const streakY = 60 + ((i * 37) % (canvasHeight - 120));
+          const streakX = ((i * 123) - streakSpeed) % (canvasWidth + 200);
+          ctx.beginPath();
+          ctx.moveTo(streakX, streakY);
+          ctx.lineTo(streakX + 55, streakY);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Optional Lane Lines
+        if (state.showLanes && state.ducks.length > 0) {
+          const total = state.ducks.length;
+          const bankHeight = Math.max(38, canvasHeight * 0.08);
+          const playableHeight = canvasHeight - (bankHeight * 2);
+          const laneHeight = playableHeight / total;
+
+          ctx.save();
+          for (let i = 1; i < total; i++) {
+            const laneY = bankHeight + (laneHeight * i);
+            ctx.setLineDash([8, 8]);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(35, laneY);
+            ctx.lineTo(canvasWidth - TRACK_FINISH_X_OFFSET, laneY);
+            ctx.stroke();
+
+            // Floating mini buoys
+            for (let bx = 160; bx < canvasWidth - 130; bx += 180) {
+              ctx.beginPath();
+              ctx.arc(bx + ((i % 2) * 40), laneY, 3, 0, Math.PI * 2);
+              ctx.fillStyle = (i % 2 === 0) ? '#f43f5e' : '#ffffff';
+              ctx.fill();
+            }
+          }
+          ctx.restore();
+        }
+
+        // Riverbanks (Lush grass with wood dock edges)
+        drawRiverbanks();
+
+        // Starting Gate Line (Left)
+        drawStartGate();
+
+        // Finish Line Checkered Banner (Right)
+        drawFinishLine();
+      }
+
+      function drawRiverbanks() {
+        const bankHeight = Math.max(38, canvasHeight * 0.08);
+
+        // Top Bank
+        const topGrad = ctx.createLinearGradient(0, 0, 0, bankHeight);
+        topGrad.addColorStop(0, '#15803d');
+        topGrad.addColorStop(0.85, '#16a34a');
+        topGrad.addColorStop(1, '#854d0e'); // mud/wood trim
+        ctx.fillStyle = topGrad;
+        ctx.fillRect(0, 0, canvasWidth, bankHeight);
+
+        // Top bank wooden edge
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(0, bankHeight - 4, canvasWidth, 4);
+
+        // Bottom Bank
+        const btmGrad = ctx.createLinearGradient(0, canvasHeight - bankHeight, 0, canvasHeight);
+        btmGrad.addColorStop(0, '#854d0e'); // mud/wood trim
+        btmGrad.addColorStop(0.15, '#16a34a');
+        btmGrad.addColorStop(1, '#15803d');
+        ctx.fillStyle = btmGrad;
+        ctx.fillRect(0, canvasHeight - bankHeight, canvasWidth, bankHeight);
+
+        // Bottom bank wooden edge
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(0, canvasHeight - bankHeight, canvasWidth, 4);
+
+        // Small grass tufts & flowers along riverbanks
+        ctx.save();
+        ctx.fillStyle = '#22c55e';
+        for (let x = 20; x < canvasWidth; x += 55) {
+          // Top grass
+          ctx.beginPath();
+          ctx.moveTo(x, bankHeight - 4);
+          ctx.lineTo(x + 4, bankHeight - 12);
+          ctx.lineTo(x + 8, bankHeight - 4);
+          ctx.fill();
+
+          // Bottom grass
+          ctx.beginPath();
+          ctx.moveTo(x + 25, canvasHeight - bankHeight + 4);
+          ctx.lineTo(x + 29, canvasHeight - bankHeight + 12);
+          ctx.lineTo(x + 33, canvasHeight - bankHeight + 4);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawStartGate() {
+        const gateX = TRACK_GATE_X;
+        const bankHeight = Math.max(38, canvasHeight * 0.08);
+
+        ctx.save();
+        // Rope / Starting line
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(gateX, bankHeight);
+        ctx.lineTo(gateX, canvasHeight - bankHeight);
+        ctx.stroke();
+
+        // Start Posts
+        [bankHeight - 2, canvasHeight - bankHeight + 2].forEach(py => {
+          ctx.fillStyle = '#78350f';
+          ctx.beginPath();
+          ctx.arc(gateX, py, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
+
+        // Floating "START" Buoy Badge - placed safely on top dock
+        const buoyY = Math.max(8, bankHeight - 24);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(gateX - 28, buoyY, 56, 20, 10);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#facc15';
+        ctx.font = 'bold 11px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('START', gateX, buoyY + 10);
+        ctx.restore();
+      }
+
+      function drawFinishLine() {
+        const finishX = canvasWidth - TRACK_FINISH_X_OFFSET;
+        const bankHeight = Math.max(38, canvasHeight * 0.08);
+        const playableHeight = canvasHeight - (bankHeight * 2);
+
+        ctx.save();
+        // Checkered vertical finish strip
+        const sqSize = 12;
+        const cols = 2;
+        const rows = Math.ceil(playableHeight / sqSize);
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const isWhite = (r + c) % 2 === 0;
+            ctx.fillStyle = isWhite ? '#ffffff' : '#0f172a';
+            ctx.fillRect(finishX + (c * sqSize), bankHeight + (r * sqSize), sqSize, sqSize);
+          }
+        }
+
+        // Finish floating banner arch badge
+        ctx.fillStyle = '#dc2626';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(finishX - 16, bankHeight + 8, 58, 24, 12);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 11px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('FINISH', finishX + 13, bankHeight + 20);
+
+        // Checkered waving flag on top
+        ctx.font = '22px sans-serif';
+        ctx.fillText('🏁', finishX + 13, bankHeight - 12);
+        ctx.fillText('🏁', finishX + 13, canvasHeight - bankHeight + 18);
+        ctx.restore();
+      }
+
+      // --- Procedural Duck Drawing ---
+      function drawDuck(duck, time) {
+        const x = duck.x;
+        const y = duck.y;
+
+        // Dynamic bobbing: scaled by duck.bobSpeed (frantic in sprint, lazy in coast)
+        const bob = Math.sin(time * duck.bobSpeed + duck.bobOffset) * (duck.currentSpeed > 1.4 ? 4.2 : 3.0);
+        // Tilt combines gentle rhythm with aerodynamic forward racing lean
+        const tilt = (Math.cos(time * duck.bobSpeed + duck.bobOffset) * 0.05) + duck.tilt;
+
+        const renderY = y + bob;
+
+        // 0. Foam wake and speed wind streaks (drawn under duck in water)
+        if (state.speedTrails) {
+          // Bubbly wake foam
+          if (duck.wakeFoam.length > 0) {
+            ctx.save();
+            duck.wakeFoam.forEach(wf => {
+              ctx.fillStyle = `rgba(255, 255, 255, ${wf.opacity})`;
+              ctx.beginPath();
+              ctx.arc(wf.x, wf.y, wf.radius, 0, Math.PI * 2);
+              ctx.fill();
+            });
+            ctx.restore();
+          }
+
+          // Speed lines whooshing past duck when fast
+          if (duck.speedLines.length > 0) {
+            ctx.save();
+            duck.speedLines.forEach(sl => {
+              ctx.strokeStyle = `rgba(255, 255, 255, ${sl.opacity * 0.8})`;
+              ctx.lineWidth = 1.6;
+              ctx.beginPath();
+              ctx.moveTo(sl.x, sl.y);
+              ctx.lineTo(sl.x - sl.len, sl.y);
+              ctx.stroke();
+            });
+            ctx.restore();
+          }
+        }
+
+        const total = state.ducks.length || 1;
+        const bankHeight = Math.max(38, canvasHeight * 0.08);
+        const playableHeight = canvasHeight - (bankHeight * 2);
+        const laneHeight = playableHeight / total;
+        const duckScale = Math.max(0.42, Math.min(1.0, laneHeight / 38));
+
+        ctx.save();
+        ctx.translate(x, renderY);
+        ctx.scale(duckScale, duckScale);
+        ctx.rotate(tilt);
+
+        // Water Wake Ripple (under duck)
+        ctx.save();
+        const wakeScaleX = duck.currentSpeed > 1.4 ? 32 : 24;
+        const wakeAlpha = duck.currentSpeed > 1.4 ? 0.55 : 0.3;
+        ctx.fillStyle = `rgba(255, 255, 255, ${wakeAlpha})`;
+        ctx.beginPath();
+        ctx.ellipse(-10, 14, wakeScaleX, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // --- Duck Surfer Surfboard ---
+        ctx.save();
+        const boardLen = 50;
+        const boardY = 15;
+        const boardTilt = duck.currentSpeed > 1.4 ? -0.05 : 0;
+        ctx.translate(0, boardY);
+        ctx.rotate(boardTilt);
+
+        // Drop shadow on water
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.beginPath();
+        ctx.ellipse(-2, 3, boardLen * 0.48, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Surfboard gradient matching surf aesthetic
+        const boardGrad = ctx.createLinearGradient(-boardLen * 0.5, 0, boardLen * 0.5, 0);
+        boardGrad.addColorStop(0, '#f43f5e'); // coral red tail
+        boardGrad.addColorStop(0.35, '#fbbf24'); // sunny yellow
+        boardGrad.addColorStop(0.7, '#06b6d4'); // ocean cyan
+        boardGrad.addColorStop(1, '#ffffff'); // white nose
+
+        ctx.fillStyle = boardGrad;
+        ctx.beginPath();
+        // Nose points forward right (+X), tail on left (-X)
+        ctx.moveTo(-boardLen * 0.46, -1);
+        ctx.quadraticCurveTo(0, -3.5, boardLen * 0.48, 0);
+        ctx.quadraticCurveTo(boardLen * 0.54, 2, boardLen * 0.48, 4);
+        ctx.quadraticCurveTo(0, 4, -boardLen * 0.46, 3);
+        ctx.quadraticCurveTo(-boardLen * 0.52, 1, -boardLen * 0.46, -1);
+        ctx.closePath();
+        ctx.fill();
+
+        // White deck racing stripes
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-boardLen * 0.42, 1.2);
+        ctx.lineTo(boardLen * 0.45, 1.2);
+        ctx.stroke();
+
+        // Surfboard skeg fin
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.moveTo(-16, 3);
+        ctx.lineTo(-20, 8);
+        ctx.lineTo(-13, 3.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        // 1. Duck Tail (curved flip at back - perked higher when sprinting)
+        ctx.fillStyle = duck.color.shadow;
+        ctx.beginPath();
+        ctx.moveTo(-16, 2);
+        const tailLift = duck.currentSpeed > 1.4 ? -17 : -14;
+        ctx.quadraticCurveTo(-26, -6, -30, tailLift);
+        ctx.quadraticCurveTo(-20, -10, -10, -2);
+        ctx.closePath();
+        ctx.fill();
+
+        // 2. Duck Body (plump ellipse)
+        const bodyGrad = ctx.createRadialGradient(-2, 2, 4, -2, 2, 22);
+        bodyGrad.addColorStop(0, duck.color.body);
+        bodyGrad.addColorStop(1, duck.color.shadow);
+
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, 4, 20, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Duck Wing with dynamic flapping motion!
+        ctx.save();
+        ctx.translate(-4, 4);
+        ctx.rotate(-0.2 + duck.wingAngle);
+
+        ctx.fillStyle = duck.color.shadow;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 12, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = duck.color.body;
+        ctx.beginPath();
+        ctx.ellipse(0, -1, 10, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // White wind tips on wing during sprints
+        if (duck.currentSpeed > 1.4) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(6, -2);
+          ctx.lineTo(12, 0);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // 4. Duck Head
+        const headX = 14;
+        const headY = -8;
+        const headRadius = 11;
+
+        const headGrad = ctx.createRadialGradient(headX - 3, headY - 3, 2, headX, headY, headRadius);
+        headGrad.addColorStop(0, duck.color.body);
+        headGrad.addColorStop(1, duck.color.shadow);
+
+        ctx.fillStyle = headGrad;
+        ctx.beginPath();
+        ctx.arc(headX, headY, headRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 5. Duck Beak
+        ctx.fillStyle = duck.color.beak;
+        ctx.beginPath();
+        ctx.moveTo(headX + 8, headY - 2);
+        ctx.quadraticCurveTo(headX + 22, headY - 1, headX + 25, headY + 3);
+        ctx.quadraticCurveTo(headX + 14, headY + 7, headX + 7, headY + 5);
+        ctx.closePath();
+        ctx.fill();
+
+        // Beak smile line
+        ctx.strokeStyle = '#c2410c';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(headX + 8, headY + 2);
+        ctx.lineTo(headX + 18, headY + 2);
+        ctx.stroke();
+
+        // 6. Duck Eye (Friendly with shine)
+        const eyeX = headX + 3;
+        const eyeY = headY - 3;
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(eyeX, eyeY, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Specular highlight in eye
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(eyeX + 0.8, eyeY - 0.8, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 7. Optional Accessories
+        if (state.showAccessories) {
+          drawAccessory(duck.accessory, headX, headY);
+        }
+
+        // 8. Bib Number on Duck
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+        ctx.beginPath();
+        ctx.arc(-2, 4, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 8px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(duck.id, -2, 4.5);
+
+        ctx.restore();
+
+        // Draw Splashes
+        duck.splashes.forEach(sp => {
+          ctx.save();
+          ctx.fillStyle = `rgba(255, 255, 255, ${sp.opacity})`;
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // 9. Floating Name Capsule Tag
+        drawNameTag(duck, x, renderY, duckScale);
+      }
+
+      function drawAccessory(acc, hx, hy) {
+        ctx.save();
+        switch (acc) {
+          case 'sunglasses':
+            // Sleek cybernetic sunglasses with neon cyan rim and visor reflection
+            ctx.fillStyle = '#090d16';
+            ctx.beginPath();
+            ctx.roundRect(hx - 2, hy - 7, 14, 6, 2);
+            ctx.fill();
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+            // Neon reflective lens flare
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(hx, hy - 5.5);
+            ctx.lineTo(hx + 6, hy - 2.5);
+            ctx.stroke();
+            break;
+
+          case 'crown':
+            ctx.fillStyle = '#facc15';
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(hx - 6, hy - 10);
+            ctx.lineTo(hx - 8, hy - 18);
+            ctx.lineTo(hx - 2, hy - 13);
+            ctx.lineTo(hx + 1, hy - 20);
+            ctx.lineTo(hx + 4, hy - 13);
+            ctx.lineTo(hx + 8, hy - 18);
+            ctx.lineTo(hx + 6, hy - 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            break;
+
+          case 'partyHat':
+            ctx.fillStyle = '#f43f5e';
+            ctx.beginPath();
+            ctx.moveTo(hx - 4, hy - 10);
+            ctx.lineTo(hx + 2, hy - 24);
+            ctx.lineTo(hx + 8, hy - 10);
+            ctx.closePath();
+            ctx.fill();
+            // Pom pom
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.arc(hx + 2, hy - 24, 3, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+
+          case 'pirateHat':
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.ellipse(hx + 1, hy - 11, 14, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Jolly roger dot
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(hx + 1, hy - 11, 2, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+
+          case 'headband':
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(hx - 9, hy - 5);
+            ctx.lineTo(hx + 10, hy - 5);
+            ctx.stroke();
+            // Tails
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(hx - 9, hy - 5);
+            ctx.lineTo(hx - 18, hy - 3);
+            ctx.lineTo(hx - 16, hy - 8);
+            ctx.closePath();
+            ctx.fill();
+            break;
+
+          case 'flower':
+            ctx.fillStyle = '#f472b6';
+            for (let a = 0; a < Math.PI * 2; a += Math.PI / 3) {
+              ctx.beginPath();
+              ctx.arc(hx - 6 + Math.cos(a) * 4, hy - 8 + Math.sin(a) * 4, 2.5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(hx - 6, hy - 8, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+        }
+        ctx.restore();
+      }
+
+      function drawNameTag(duck, x, y) {
+        ctx.save();
+        const text = duck.name;
+        ctx.font = 'bold 11px system-ui, sans-serif';
+        const textWidth = ctx.measureText(text).width;
+        const tagW = Math.max(48, textWidth + 16);
+        const tagH = 18;
+        const tagX = x - tagW / 2;
+        const tagY = y - 28;
+
+        // Is this duck currently leading?
+        const isLeader = (duck.rank === 1 && state.raceState === 'racing');
+
+        // Dynamic speed status badge in Horse Race mode
+        if (state.horseRaceMode && state.raceState === 'racing') {
+          if (duck.currentSpeed > 1.5) {
+            // SPRINT / SURGE BADGE
+            const isHyper = duck.currentSpeed > 2.0;
+            const badgeText = isHyper ? '🔥 SPRINT!' : '⚡ SURGE!';
+            ctx.font = '900 9px system-ui, sans-serif';
+            const bW = ctx.measureText(badgeText).width + 10;
+            const bH = 14;
+            const bX = x - bW / 2;
+            const bY = tagY - 16;
+
+            ctx.fillStyle = isHyper ? '#ef4444' : '#f59e0b';
+            ctx.beginPath();
+            ctx.roundRect(bX, bY, bW, bH, 7);
+            ctx.fill();
+
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(badgeText, x, bY + bH / 2);
+          } else if (duck.currentSpeed < 0.65) {
+            // COASTING / RESTING BADGE
+            const badgeText = '🌊 Coast';
+            ctx.font = 'bold 8px system-ui, sans-serif';
+            const bW = ctx.measureText(badgeText).width + 8;
+            const bH = 12;
+            const bX = x - bW / 2;
+            const bY = tagY - 14;
+
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.85)';
+            ctx.beginPath();
+            ctx.roundRect(bX, bY, bW, bH, 6);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(badgeText, x, bY + bH / 2);
+          }
+        }
+
+        // Tag capsule
+        ctx.fillStyle = isLeader ? 'rgba(234, 179, 8, 0.95)' : 'rgba(15, 23, 42, 0.85)';
+        ctx.beginPath();
+        ctx.roundRect(tagX, tagY, tagW, tagH, 9);
+        ctx.fill();
+
+        ctx.strokeStyle = isLeader ? '#fef08a' : 'rgba(255, 255, 255, 0.25)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Name text
+        ctx.fillStyle = isLeader ? '#713f12' : '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, tagY + tagH / 2);
+
+        // Crown icon if 1st place leader (only if not overlapping sprint badge)
+        if (isLeader && duck.currentSpeed <= 1.5) {
+          ctx.font = '12px sans-serif';
+          ctx.fillText('👑', x, tagY - 7);
+        }
+        ctx.restore();
+      }
+
+      // --- Race Finished Callback ---
+      function onDuckFinish(duck) {
+        if (!state.winner) {
+          state.winner = duck;
+          // First place victory!
+          SoundFX.victoryFanfare();
+          SoundFX.playMallardHailCall(1.06);
+          spawnConfetti(140);
+
+          // Announce thrilling winner!
+          triggerAnnouncerCall(`🏆 AND IT'S <strong>${escapeHtml(duck.name)}</strong> RIDING THE CYBER SWELL! CHAMPION SURFER! 🥇`, true);
+
+          // Show winner toast banner
+          winnerBannerText.textContent = `Winner: ${duck.name}!`;
+          winnerBanner.classList.add('show');
+          setTimeout(() => {
+            winnerBanner.classList.remove('show');
+          }, 3500);
+
+          // All remaining ducks catch a turbo wave to finish line!
+          state.ducks.forEach(d => {
+            if (!d.finished) {
+              d.speedState = 'sprinting';
+              d.targetSpeed = 3.6 + Math.random() * 1.6;
+              d.currentSpeed = Math.max(d.currentSpeed, 2.8);
+              d.phaseTimer = 5.0;
+              d.spawnBurstPuff();
+            }
+          });
+        } else {
+          SoundFX.splash();
+          // Occasional realistic quack for subsequent finishers (avoiding noisy overlaps as remaining ducks cross)
+          if (Math.random() < 0.25) {
+            SoundFX.quack(0.92 + Math.random() * 0.16, false);
+          }
+        }
+
+        // Assign final rank based on finish order
+        const finishedCount = state.ducks.filter(d => d.finished).length;
+        duck.rank = finishedCount;
+
+        updateLiveLeadersTicker();
+
+        // Check if all ducks finished
+        if (finishedCount === state.ducks.length) {
+          completeRace();
+        }
+      }
+
+      function completeRace() {
+        state.raceState = 'finished';
+        startRaceBtn.disabled = false;
+        startBtnText.textContent = 'Race Again!';
+
+        const finishX = canvasWidth - TRACK_FINISH_X_OFFSET;
+
+        // CRITICAL GUARANTEE: Every duck is at the finish line!
+        // None can ever be left at the start line or mid-track!
+        state.ducks.forEach((duck, idx) => {
+          duck.finished = true;
+          duck.progress = 1.0;
+          const stagger = (idx % 4) * 8 - 4;
+          duck.x = finishX + stagger;
+          duck.currentSpeed = 0.5;
+          duck.speedState = 'coasting';
+          if (!duck.finishTime) {
+            duck.finishTime = state.raceTimeElapsed + (idx * 0.06);
+          }
+        });
+
+        // Sort rankings
+        state.rankings = [...state.ducks].sort((a, b) => {
+          if (a.finishTime !== null && b.finishTime !== null) {
+            return a.finishTime - b.finishTime;
+          }
+          return b.progress - a.progress;
+        });
+
+        // Set rank numbers
+        state.rankings.forEach((d, i) => d.rank = i + 1);
+
+        updateLeaderboardDisplay();
+
+        // Check Remove Winner for Next Race setting
+        if (state.removeWinnerForNextRace && state.winner) {
+          const wonName = state.winner.name;
+          if (!state.removedWinners.includes(wonName)) {
+            state.removedWinners.push(wonName);
+          }
+
+          // Filter out winner from state.names for next race
+          state.names = state.names.filter(n => n.toLowerCase() !== wonName.toLowerCase());
+          namesInput.value = state.names.join('\n');
+          duckCountBadge.textContent = `${state.names.length} Ducks`;
+
+          if (resultsWinnerRemovalNotice) {
+            resultsWinnerRemovalNotice.innerHTML = `🏆 <strong>${escapeHtml(wonName)}</strong> took 1st place and has been removed for the next race! (${state.names.length} ducks remaining)`;
+            resultsWinnerRemovalNotice.style.display = 'flex';
+          }
+          triggerAnnouncerCall(`🏆 <strong>${escapeHtml(wonName)}</strong> takes gold and is removed for the next race! (${state.names.length} ducks remain)`);
+        } else {
+          if (resultsWinnerRemovalNotice) {
+            resultsWinnerRemovalNotice.style.display = 'none';
+          }
+        }
+
+        // Open modal after short victory pause
+        setTimeout(() => {
+          openResultsModal();
+        }, 1200);
+      }
+
+      // --- Countdown & Race Flow ---
+      let countdownTimer = null;
+
+      // Rapid, pitch-varied chorus of quacks across all participating ducks when the race countdown hits zero
+      function triggerDuckStartChorus() {
+        if (!soundEnabled) return;
+        const ducks = (state.ducks && state.ducks.length > 0) ? state.ducks : state.names;
+        if (!ducks || ducks.length === 0) return;
+
+        // Rapid, pitch-varied chorus of quacks across all participating ducks
+        ducks.forEach((duck, idx) => {
+          // Rapid stagger (staggered by ~35-50ms) for an energetic flock surge
+          const delay = Math.min(idx * 38 + (Math.random() * 25), 1100);
+          setTimeout(() => {
+            if (soundEnabled) {
+              // Pitch variation: 300Hz + Math.random() * 80 so every duck quack sounds distinct
+              const duckPitch = 300 + Math.random() * 80;
+              playRealisticQuack(duckPitch, 0.20 + Math.random() * 0.06, 0.32);
+
+              // Accompanying splash effect on the duck's board
+              if (duck && typeof duck === 'object' && duck.splashes) {
+                duck.splashes.push({
+                  x: duck.x || 100,
+                  y: (duck.y || 100) + 12,
+                  radius: 8,
+                  opacity: 0.9,
+                  life: 0.5
+                });
+              }
+            }
+          }, delay);
+        });
+      }
+
+      function startRace() {
+        if (state.names.length < 2) {
+          triggerAnnouncerCall("⚠️ Need at least 2 participants for a race! Please add more ducks in Setup.", true);
+          openSetupModal();
+          return;
+        }
+        getAudioContext(); // Initialize audio context on click
+        playRealisticQuack(); // Trigger a quack when clicking "Race"
+
+        // Reset positions
+        resetDucks();
+        state.raceState = 'countdown';
+        startRaceBtn.disabled = true;
+
+        countdownOverlay.classList.add('visible');
+
+        let count = 3;
+        countdownNumber.textContent = count;
+        countdownSubtext.textContent = 'Get Ready!';
+        SoundFX.beep(440, 0.18, 'sine', 0.2);
+        triggerAnnouncerCall('Duck surfers in position at the reef! 3... 2... 1...', true);
+
+        clearInterval(countdownTimer);
+        countdownTimer = setInterval(() => {
+          count--;
+          if (count > 0) {
+            countdownNumber.textContent = count;
+            SoundFX.beep(440, 0.18, 'sine', 0.2);
+          } else if (count === 0) {
+            countdownNumber.textContent = 'SURF!';
+            countdownSubtext.textContent = 'Catch the Wave!';
+            SoundFX.starterWhistle();
+            // Trigger a rapid, pitch-varied chorus of quacks across all participating ducks when the race countdown hits zero
+            triggerDuckStartChorus();
+          } else {
+            clearInterval(countdownTimer);
+            countdownOverlay.classList.remove('visible');
+            beginActualRace();
+          }
+        }, 900);
+      }
+
+      function beginActualRace() {
+        state.raceState = 'racing';
+        state.raceStartTime = performance.now();
+        state.raceTimeElapsed = 0;
+        state.raceQuackTimer = 0.6;
+        state.winner = null;
+        state.lastLeaderId = null;
+        startBtnText.textContent = 'Surfing...';
+
+        triggerAnnouncerCall("The cyber swell hits! AND THEY'RE OFF IN CYBERDUCK SURFER! ⚡🌊🏄‍♂️", true);
+      }
+
+      function resetDucks() {
+        state.raceState = 'idle';
+        state.winner = null;
+        state.lastLeaderId = null;
+        state.cameraX = 0;
+        state.raceTimeElapsed = 0;
+        state.raceQuackTimer = 0.8;
+        startBtnText.textContent = 'Start CyberDuck Surfer!';
+        startRaceBtn.disabled = state.names.length < 2;
+
+        // Synchronize duck lineup with current state.names (vital when winner was removed)
+        if (state.ducks.length !== state.names.length || state.ducks.some((d, idx) => d.name !== state.names[idx])) {
+          state.ducks = state.names.map((name, i) => new Duck(i + 1, name, i, state.names.length));
+          calculateDuckLanes();
+        }
+
+        const startX = TRACK_START_X;
+        state.ducks.forEach(d => {
+          d.progress = 0;
+          d.x = startX;
+          d.currentSpeed = 1.0;
+          d.targetSpeed = 1.0;
+          d.speedState = 'cruising';
+          d.tilt = 0;
+          d.targetTilt = 0;
+          d.hadLateKick = false;
+          d.phaseTimer = 0.4 + Math.random() * 1.2;
+          d.finished = false;
+          d.finishTime = null;
+          d.rank = 0;
+          d.splashes = [];
+          d.wakeFoam = [];
+          d.speedLines = [];
+        });
+
+        hudTimer.textContent = formatTime(state.raceDuration);
+        winnerBanner.classList.remove('show');
+        countdownOverlay.classList.remove('visible');
+        triggerAnnouncerCall('Duck surfers lined up at the break. Ready to catch the waves! 🏄‍♂️', true);
+        updateLiveLeadersTicker();
+      }
+
+      function formatTime(seconds) {
+        const s = Math.floor(seconds);
+        const ms = Math.floor((seconds % 1) * 10);
+        const mins = Math.floor(s / 60);
+        const remSecs = s % 60;
+        return `${String(mins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}.${ms}`;
+      }
+
+      // --- Live Winner Ticker (Winner Only) ---
+      function updateLiveLeadersTicker() {
+        const sorted = [...state.ducks].sort((a, b) => {
+          if (b.progress !== a.progress) return b.progress - a.progress;
+          return (a.finishTime || 9999) - (b.finishTime || 9999);
+        });
+        sorted.forEach((d, idx) => {
+          if (!d.finished) d.rank = idx + 1;
+        });
+
+        const leader = sorted[0];
+
+        // Announcer call on lead changes during race
+        if (state.raceState === 'racing' && leader && state.lastLeaderId !== leader.id) {
+          if (state.lastLeaderId !== null && leader.progress < 0.9) {
+            triggerAnnouncerCall(`🚨 LEAD CHANGE! <strong>${escapeHtml(leader.name)}</strong> charges to the front!`);
+          }
+          state.lastLeaderId = leader.id;
+        }
+
+        if (state.raceState === 'finished' && state.winner) {
+          liveLeadersTicker.innerHTML = `
+            <div class="leader-pill winner-badge is-crowned">
+              <span class="winner-trophy">🏆</span>
+              <span class="winner-label">WINNER:</span>
+              <span class="winner-name">${escapeHtml(state.winner.name)}</span>
+            </div>
+          `;
+        } else if (state.raceState === 'racing' && leader) {
+          liveLeadersTicker.innerHTML = `
+            <div class="leader-pill winner-badge">
+              <span class="winner-trophy">👑</span>
+              <span class="winner-label">Leader:</span>
+              <span class="winner-name">${escapeHtml(leader.name)}</span>
+            </div>
+          `;
+        } else {
+          liveLeadersTicker.innerHTML = `
+            <div class="leader-pill winner-badge">
+              <span class="winner-trophy">🏆</span>
+              <span class="winner-label">Winner:</span>
+              <span class="winner-name">Waiting...</span>
+            </div>
+          `;
+        }
+      }
+
+      function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      // --- Results Modal & Leaderboard Table ---
+      function openResultsModal() {
+        if (!state.rankings.length) return;
+
+        // Top 3 Podium
+        const first = state.rankings[0];
+        const second = state.rankings[1];
+        const third = state.rankings[2];
+
+        if (first) {
+          podiumName1.textContent = first.name;
+          podiumTime1.textContent = first.finishTime ? `${first.finishTime.toFixed(2)}s` : '1st';
+        }
+        if (second) {
+          podiumName2.textContent = second.name;
+          podiumTime2.textContent = second.finishTime ? `${second.finishTime.toFixed(2)}s` : '2nd';
+        }
+        if (third) {
+          podiumName3.textContent = third.name;
+          podiumTime3.textContent = third.finishTime ? `${third.finishTime.toFixed(2)}s` : '3rd';
+        }
+
+        // Full table
+        leaderboardTbody.innerHTML = state.rankings.map(d => `
+          <tr>
+            <td class="rank-cell">#${d.rank}</td>
+            <td>
+              <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${d.color.body}; margin-right:6px;"></span>
+              ${escapeHtml(d.name)}
+            </td>
+            <td class="time-cell">${d.finishTime ? `${d.finishTime.toFixed(2)}s` : 'Finished'}</td>
+          </tr>
+        `).join('');
+
+        leaderboardModal.classList.add('open');
+      }
+
+      function closeResultsModal() {
+        leaderboardModal.classList.remove('open');
+      }
+
+      function updateLeaderboardDisplay() {
+        // Keeps modal table in sync if opened manually
+      }
+
+      // --- Main Animation Loop (60FPS requestAnimationFrame) ---
+      let lastTimestamp = 0;
+
+      function gameLoop(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const dt = Math.min(0.1, (timestamp - lastTimestamp) / 1000); // delta in seconds
+        lastTimestamp = timestamp;
+
+        const timeInSec = timestamp / 1000;
+
+        // Update race physics
+        if (state.raceState === 'racing') {
+          state.raceTimeElapsed += dt;
+          const remaining = Math.max(0, state.raceDuration - state.raceTimeElapsed);
+          hudTimer.textContent = formatTime(remaining);
+
+          const startX = TRACK_START_X;
+          const finishX = canvasWidth - TRACK_FINISH_X_OFFSET;
+
+          state.ducks.forEach(duck => {
+            duck.update(dt, state.raceTimeElapsed, state.raceDuration, startX, finishX);
+          });
+
+          // Quack sound effects periodically during the race
+          state.raceQuackTimer -= dt;
+          if (state.raceQuackTimer <= 0) {
+            state.raceQuackTimer = 2.4 + Math.random() * 2.2; // Natural periodic race interval
+            if (soundEnabled && state.ducks.length > 0) {
+              const activeDucks = state.ducks.filter(d => !d.finished);
+              const quacker = (activeDucks.length > 0)
+                ? activeDucks[Math.floor(Math.random() * activeDucks.length)]
+                : state.ducks[Math.floor(Math.random() * state.ducks.length)];
+              const pitch = 0.88 + ((quacker.id * 11) % 9) * 0.035 + (Math.random() * 0.07);
+
+              // Authentic, natural duck vocalization:
+              // - Classic realistic double quack ("quack-quack")
+              // - Natural 2-3 quack burst
+              // - Expressive single quack
+              const roll = Math.random();
+              if (roll < 0.45) {
+                // Signature realistic double quack
+                SoundFX.quack(pitch, true);
+              } else if (roll < 0.78) {
+                const count = Math.random() < 0.6 ? 2 : 3;
+                SoundFX.playMallardBurst(pitch, count);
+                state.raceQuackTimer += (count * 0.35);
+              } else {
+                SoundFX.quack(pitch, false);
+              }
+
+              quacker.splashes.push({
+                x: quacker.x,
+                y: quacker.y + 6,
+                radius: 7,
+                opacity: 0.85,
+                life: 0.38
+              });
+            }
+          }
+
+          updateLiveLeadersTicker();
+
+          // Camera smooth follow calculation
+          if (state.cameraMode === 'follow' && state.ducks.length > 0) {
+            const frontDuck = state.ducks.reduce((max, d) => (d.x > max.x ? d : max), state.ducks[0]);
+            const targetCam = Math.max(0, Math.min(canvasWidth * 0.35, frontDuck.x - canvasWidth * 0.45));
+            state.cameraX += (targetCam - state.cameraX) * 0.08;
+          } else {
+            state.cameraX += (0 - state.cameraX) * 0.12;
+          }
+
+          // If time expires and some ducks haven't finished, end race
+          if (state.raceTimeElapsed >= state.raceDuration * 1.35) {
+            completeRace();
+          }
+        } else {
+          state.cameraX += (0 - state.cameraX) * 0.12;
+        }
+
+        // Clear Canvas
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        // Apply camera follow transform
+        ctx.save();
+        if (Math.abs(state.cameraX) > 0.5) {
+          ctx.translate(-state.cameraX, 0);
+        }
+
+        // 1. Draw River Water, Banks, Markers
+        drawRiver(timeInSec);
+
+        // 2. Draw all ducks
+        state.ducks.forEach(duck => {
+          drawDuck(duck, timeInSec);
+        });
+
+        // 3. Draw Confetti particles
+        if (state.confetti.length > 0) {
+          updateAndDrawConfetti(ctx, dt);
+        }
+
+        ctx.restore();
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // --- Event Listeners & Controls ---
+      // Names Textarea
+      namesInput.value = PRESETS.defaultNames.join('\n');
+      initDucksFromNames();
+
+      namesInput.addEventListener('input', () => {
+        initDucksFromNames();
+      });
+
+      // Quick Generators
+      function generateNumberedDucks(count) {
+        const names = [];
+        for (let i = 1; i <= count; i++) {
+          names.push(`Duck ${i}`);
+        }
+        namesInput.value = names.join('\n');
+        initDucksFromNames();
+      }
+
+      gen10Btn.addEventListener('click', () => generateNumberedDucks(10));
+      gen25Btn.addEventListener('click', () => generateNumberedDucks(25));
+      gen50Btn.addEventListener('click', () => generateNumberedDucks(50));
+
+      presetOfficeBtn.addEventListener('click', () => {
+        namesInput.value = PRESETS.office.join('\n');
+        initDucksFromNames();
+      });
+
+      presetClassBtn.addEventListener('click', () => {
+        namesInput.value = PRESETS.classroom.join('\n');
+        initDucksFromNames();
+      });
+
+      shuffleBtn.addEventListener('click', () => {
+        const list = namesInput.value.split('\n').filter(n => n.trim().length > 0);
+        for (let i = list.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [list[i], list[j]] = [list[j], list[i]];
+        }
+        namesInput.value = list.join('\n');
+        initDucksFromNames();
+        SoundFX.quack();
+      });
+
+      clearBtn.addEventListener('click', () => {
+        namesInput.value = '';
+        initDucksFromNames();
+      });
+
+      // Duration Buttons
+      durationButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          durationButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const sec = parseInt(btn.getAttribute('data-sec'), 10);
+          state.raceDuration = sec;
+          durationHint.textContent = `${sec} seconds`;
+          if (state.raceState !== 'racing') {
+            hudTimer.textContent = formatTime(sec);
+          }
+        });
+      });
+
+      // Settings toggles
+      if (horseRaceToggle) {
+        horseRaceToggle.addEventListener('change', (e) => {
+          state.horseRaceMode = e.target.checked;
+        });
+      }
+
+      lanesToggle.addEventListener('change', (e) => {
+        state.showLanes = e.target.checked;
+      });
+
+      accessoriesToggle.addEventListener('change', (e) => {
+        state.showAccessories = e.target.checked;
+      });
+
+      if (speedTrailsToggle) {
+        speedTrailsToggle.addEventListener('change', (e) => {
+          state.speedTrails = e.target.checked;
+        });
+      }
+
+      if (announcerToggle) {
+        announcerToggle.addEventListener('change', (e) => {
+          state.announcerEnabled = e.target.checked;
+          if (announcerBar) {
+            announcerBar.style.display = e.target.checked ? 'flex' : 'none';
+          }
+        });
+      }
+
+      dramaToggle.addEventListener('change', (e) => {
+        state.highDrama = e.target.checked;
+      });
+
+      // Remove Winner for Next Race Toggles
+      function setRemoveWinnerForNextRace(enabled) {
+        state.removeWinnerForNextRace = enabled;
+        if (removeWinnerToggle) removeWinnerToggle.checked = enabled;
+        if (resultsRemoveWinnerToggle) resultsRemoveWinnerToggle.checked = enabled;
+      }
+
+      function handleWinnerRemovalToggleInResults(enabled) {
+        if (!state.winner) return;
+        const wonName = state.winner.name;
+
+        if (enabled) {
+          if (state.names.some(n => n.toLowerCase() === wonName.toLowerCase())) {
+            state.names = state.names.filter(n => n.toLowerCase() !== wonName.toLowerCase());
+            namesInput.value = state.names.join('\n');
+            duckCountBadge.textContent = `${state.names.length} Ducks`;
+          }
+          if (resultsWinnerRemovalNotice) {
+            resultsWinnerRemovalNotice.innerHTML = `🏆 <strong>${escapeHtml(wonName)}</strong> will be removed for the next race! (${state.names.length} ducks remaining)`;
+            resultsWinnerRemovalNotice.style.display = 'flex';
+          }
+        } else {
+          if (!state.names.some(n => n.toLowerCase() === wonName.toLowerCase())) {
+            state.names.push(wonName);
+            namesInput.value = state.names.join('\n');
+            duckCountBadge.textContent = `${state.names.length} Ducks`;
+          }
+          if (resultsWinnerRemovalNotice) {
+            resultsWinnerRemovalNotice.style.display = 'none';
+          }
+        }
+      }
+
+      if (removeWinnerToggle) {
+        removeWinnerToggle.checked = state.removeWinnerForNextRace;
+        removeWinnerToggle.addEventListener('change', (e) => {
+          setRemoveWinnerForNextRace(e.target.checked);
+        });
+      }
+
+      if (resultsRemoveWinnerToggle) {
+        resultsRemoveWinnerToggle.checked = state.removeWinnerForNextRace;
+        resultsRemoveWinnerToggle.addEventListener('change', (e) => {
+          setRemoveWinnerForNextRace(e.target.checked);
+          if (state.raceState === 'finished' && state.winner) {
+            handleWinnerRemovalToggleInResults(e.target.checked);
+          }
+        });
+      }
+
+      // Sound Toggle inside Setup Modal
+      if (soundToggle) {
+        soundToggle.checked = soundEnabled;
+        soundToggle.addEventListener('change', (e) => {
+          soundEnabled = e.target.checked;
+          if (soundLabel) {
+            soundLabel.textContent = soundEnabled ? '🔊 Realistic Quack & Audio' : '🔇 Sound Muted';
+          }
+          if (soundEnabled) {
+            playRealisticQuack();
+          }
+        });
+      }
+
+      // Test Quack button inside Setup Modal
+      if (testQuackBtn) {
+        testQuackBtn.addEventListener('click', () => {
+          getAudioContext();
+          playRealisticQuack();
+        });
+      }
+
+      // Setup Modal Controls
+      function openSetupModal() {
+        if (setupModal) {
+          setupModal.classList.add('open');
+        }
+      }
+
+      function closeSetupModal() {
+        if (setupModal) {
+          setupModal.classList.remove('open');
+        }
+      }
+
+      if (openSidebarFloatingBtn) {
+        openSidebarFloatingBtn.addEventListener('click', openSetupModal);
+      }
+      if (closeSetupModalBtn) {
+        closeSetupModalBtn.addEventListener('click', closeSetupModal);
+      }
+      if (closeSetupModalBtn2) {
+        closeSetupModalBtn2.addEventListener('click', closeSetupModal);
+      }
+      if (setupModal) {
+        setupModal.addEventListener('click', (e) => {
+          if (e.target === setupModal) {
+            closeSetupModal();
+          }
+        });
+      }
+
+      // Quick Start Race Button in HUD
+      if (hudQuickStartBtn) {
+        hudQuickStartBtn.addEventListener('click', () => {
+          playRealisticQuack(); // Race Button Quack: Trigger a quack when clicking "Race"
+          if (state.raceState === 'idle' && !startRaceBtn.disabled) {
+            startRace();
+          } else if (state.raceState === 'finished') {
+            closeResultsModal();
+            startRace();
+          }
+        });
+      }
+
+      // Wide View / Fullscreen Fit Toggle
+      function isAppFullscreen() {
+        return !!(
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.mozFullScreenElement ||
+          document.msFullscreenElement ||
+          document.body.classList.contains('full-window-fit')
+        );
+      }
+
+      function updateFullscreenButtonState() {
+        const isFs = isAppFullscreen();
+        state.cameraMode = 'wide'; // In fullscreen fit, wide view is active
+        if (isFs) {
+          cameraText.textContent = 'Exit Fullscreen';
+          cameraIcon.textContent = '🗗';
+          cameraToggleBtn.title = 'Exit Fullscreen Fit';
+          cameraToggleBtn.classList.add('active');
+        } else {
+          cameraText.textContent = 'Wide View';
+          cameraIcon.textContent = '⛶';
+          cameraToggleBtn.title = 'Wide View - Switch to Fullscreen Fit';
+          cameraToggleBtn.classList.remove('active');
+        }
+
+        // Seamlessly recalibrate canvas scale and lanes
+        requestAnimationFrame(() => {
+          dpr = window.devicePixelRatio || 1;
+          resizeCanvas();
+        });
+      }
+
+      function toggleFullScreen() {
+        state.cameraMode = 'wide';
+        if (!isAppFullscreen()) {
+          const docEl = document.documentElement;
+          const reqFs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+
+          if (reqFs) {
+            reqFs.call(docEl).then(() => {
+              updateFullscreenButtonState();
+            }).catch(() => {
+              // Fallback for sandboxed iframes or browsers disallowing native fullscreen
+              document.body.classList.add('full-window-fit');
+              updateFullscreenButtonState();
+            });
+          } else {
+            document.body.classList.add('full-window-fit');
+            updateFullscreenButtonState();
+          }
+        } else {
+          if (document.body.classList.contains('full-window-fit')) {
+            document.body.classList.remove('full-window-fit');
+          }
+          const exitFs = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+          if (exitFs && (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement)) {
+            exitFs.call(document).catch(() => {});
+          }
+          updateFullscreenButtonState();
+        }
+      }
+
+      cameraToggleBtn.addEventListener('click', toggleFullScreen);
+
+      ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+        document.addEventListener(evt, updateFullscreenButtonState);
+      });
+
+      // Start & Reset (Starts race and closes setup modal if open)
+      startRaceBtn.addEventListener('click', () => {
+        closeSetupModal();
+        playRealisticQuack(); // Race Button Quack: Trigger quack when clicking "Race"
+        startRace();
+      });
+
+      resetRaceBtn.addEventListener('click', () => {
+        resetDucks();
+      });
+
+      // Modal buttons
+      closeModalBtn.addEventListener('click', closeResultsModal);
+
+      rematchBtn.addEventListener('click', () => {
+        closeResultsModal();
+        playRealisticQuack(); // Race Button Quack: Trigger quack when clicking "Race" again
+        startRace();
+      });
+
+      copyResultsBtn.addEventListener('click', () => {
+        if (!state.rankings.length) return;
+        const text = state.rankings.map(d => `${d.rank}. ${d.name} (${d.finishTime ? d.finishTime.toFixed(2) + 's' : 'Finish'})`).join('\n');
+        navigator.clipboard.writeText(`⚡🏄‍♂️ CyberDuck Surfer Results:\n${text}`).then(() => {
+          copyResultsBtn.textContent = '✅ Copied!';
+          setTimeout(() => { copyResultsBtn.textContent = '📋 Copy Results'; }, 2000);
+        });
+      });
+
+      // Canvas Interactive Click / Tap on Ducks
+      canvas.addEventListener('pointerdown', (e) => {
+        getAudioContext();
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+
+        for (const duck of state.ducks) {
+          const dx = clickX - duck.x;
+          const dy = clickY - duck.y;
+          if (Math.hypot(dx, dy) < 36) {
+            SoundFX.quack();
+            duck.splashes.push({
+              x: duck.x,
+              y: duck.y + 10,
+              radius: 8,
+              opacity: 0.9,
+              life: 0.5
+            });
+            break;
+          }
+        }
+      });
+
+      // --- Welcome Entry Modal & Background Intro Audio ---
+      if (welcomeStartBtn) {
+        welcomeStartBtn.addEventListener('click', () => {
+          // Immediately stop background intro music
+          IntroMusic.stop();
+
+          // Dismiss / hide the welcome modal
+          if (welcomeModal) {
+            welcomeModal.classList.remove('open');
+            setTimeout(() => {
+              welcomeModal.style.display = 'none';
+            }, 400);
+          }
+
+          // Audio whistle & signature quack on game entry
+          SoundFX.starterWhistle();
+          SoundFX.quack(1.05);
+        });
+      }
+
+      // Start background intro music upon page load or first user interaction
+      function tryStartIntroAudio() {
+        if (!IntroMusic.isPlaying && welcomeModal && welcomeModal.classList.contains('open')) {
+          IntroMusic.start();
+        }
+      }
+
+      window.addEventListener('load', () => {
+        tryStartIntroAudio();
+      });
+
+      // Browser autoplay policy fallback: unlock and start intro music on first user interaction
+      const introAudioFirstInteract = () => {
+        if (welcomeModal && welcomeModal.classList.contains('open')) {
+          tryStartIntroAudio();
+        }
+        window.removeEventListener('pointerdown', introAudioFirstInteract);
+        window.removeEventListener('keydown', introAudioFirstInteract);
+        window.removeEventListener('touchstart', introAudioFirstInteract);
+      };
+      window.addEventListener('pointerdown', introAudioFirstInteract, { passive: true });
+      window.addEventListener('keydown', introAudioFirstInteract, { passive: true });
+      window.addEventListener('touchstart', introAudioFirstInteract, { passive: true });
+
+      // Immediate attempt
+      tryStartIntroAudio();
+
+      // Keydown shortcuts: Space to start race, Escape to exit fullscreen fit
+      window.addEventListener('keydown', (e) => {
+        if (welcomeModal && welcomeModal.classList.contains('open')) {
+          if (e.code === 'Space' || e.code === 'Enter') {
+            e.preventDefault();
+            if (welcomeStartBtn) welcomeStartBtn.click();
+            return;
+          }
+        }
+        if (e.key === 'Escape' && document.body.classList.contains('full-window-fit')) {
+          document.body.classList.remove('full-window-fit');
+          updateFullscreenButtonState();
+        } else if (e.code === 'Space' && document.activeElement !== namesInput) {
+          e.preventDefault();
+          if (state.raceState === 'idle' && !startRaceBtn.disabled) {
+            startRace();
+          } else if (state.raceState === 'finished') {
+            closeResultsModal();
+            startRace();
+          }
+        }
+      });
+
+      // ResizeObserver for dynamic responsiveness (debounced with requestAnimationFrame)
+      if (window.ResizeObserver) {
+        let roRaf = null;
+        const ro = new ResizeObserver(() => {
+          if (roRaf) cancelAnimationFrame(roRaf);
+          roRaf = requestAnimationFrame(() => {
+            dpr = window.devicePixelRatio || 1;
+            resizeCanvas();
+          });
+        });
+        ro.observe(canvasContainer);
+      }
+
+      // Suppress benign ResizeObserver loop notifications
+      window.addEventListener('error', (e) => {
+        if (e.message && e.message.includes('ResizeObserver loop')) {
+          e.stopImmediatePropagation();
+        }
+      });
+
+      // Initial layout setup & kick off loop
+      resizeCanvas();
+      requestAnimationFrame(gameLoop);
+
+    })();
+  </script>
+</body>
+</html>
