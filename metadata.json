@@ -1,0 +1,8 @@
+{
+  "name": "Remix Duck Race Name Picker",
+  "description": "Interactive duck race name picker and random winner selector with realistic water physics, custom participant lists, Web Audio sound effects, and podium leaderboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
