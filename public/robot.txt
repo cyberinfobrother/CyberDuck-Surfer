@@ -1,0 +1,10 @@
+# robot.txt for CyberDuck Surfer (Remix Duck Race Name Picker)
+User-agent: *
+Allow: /
+
+# Disallow sensitive internal files if any
+Disallow: /api/
+Disallow: /*.json$
+
+# Host
+Host: https://ais-pre-su5nggwoxvpfid2viru6fj-607520250010.asia-southeast1.run.app
